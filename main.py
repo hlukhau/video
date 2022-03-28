@@ -37,6 +37,7 @@ out = cv2.VideoWriter('out.mp4', cv2.VideoWriter_fourcc('m', 'p', '4', 'v'), 20,
 
 M_front = cv2.getPerspectiveTransform(frontCoverPtsBefore, frontCoverPtsAfter)
 
+
 # cv2.imshow('img_front', img_front)
 # cv2.imshow('frame', frame)
 # cv2.waitKey(0)

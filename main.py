@@ -17,8 +17,8 @@ print(points)
 print(frontCoverPtsBefore)
 
 # Create a VideoCapture object
-cap = cv2.VideoCapture('2.mp4')
-player = MediaPlayer('2.mp4')
+cap = cv2.VideoCapture('3.mp4')
+player = MediaPlayer('3.mp4')
 
 # Check if camera opened successfully
 if (cap.isOpened() == False):

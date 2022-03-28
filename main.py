@@ -1,9 +1,12 @@
 import cv2
 import numpy as np
 import time
-from ffpyplayer.player import MediaPlayer
 from pydub import AudioSegment
 from pydub.playback import play
+
+from multiprocessing import Process
+
+#from ffpyplayer.player import MediaPlayer
 
 p0 = 49, 48
 p1 = 679, 236
@@ -20,7 +23,14 @@ print(frontCoverPtsBefore)
 
 # Create a VideoCapture object
 cap = cv2.VideoCapture('3.mp4')
-player = MediaPlayer('3.mp4')
+audio = AudioSegment.from_file('3.mp4', format='mp4')
+process = Process(target=play, args=(audio,))
+process.start()
+
+
+
+#player = MediaPlayer('3.mp4')
+#player.
 #song = AudioSegment.from_file("3.mp4", "mp4")
 
 # Check if camera opened successfully
@@ -49,7 +59,7 @@ start_time = time.time()
 
 while (True):
     ret, frame = cap.read()
-    audio_frame, val = player.get_frame()
+    #audio_frame, val = player.get_frame()
 
     if ret == True:
 
@@ -67,8 +77,8 @@ while (True):
         cv2.imshow('frame', frame)
         cv2.imshow('frame2', frame2)
 
-        if val != 'eof' and audio_frame is not None:
-            img, t = audio_frame
+        #if val != 'eof' and audio_frame is not None:
+        #    img, t = audio_frame
 
         # Press Q on keyboard to stop recording
         elapsed = (time.time() - start_time) * 1000  # msec
@@ -84,6 +94,7 @@ while (True):
     # When everything done, release the video capture and video write objects
 cap.release()
 out.release()
+process.terminate()
 
 # Closes all the frames
 cv2.destroyAllWindows()

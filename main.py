@@ -78,6 +78,7 @@ while (True):
     else:
         break
 
+
     # When everything done, release the video capture and video write objects
 cap.release()
 out.release()

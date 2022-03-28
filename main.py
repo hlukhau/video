@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import time
 from ffpyplayer.player import MediaPlayer
+from pydub import AudioSegment
+from pydub.playback import play
 
 p0 = 49, 48
 p1 = 679, 236
@@ -19,6 +21,7 @@ print(frontCoverPtsBefore)
 # Create a VideoCapture object
 cap = cv2.VideoCapture('3.mp4')
 player = MediaPlayer('3.mp4')
+#song = AudioSegment.from_file("3.mp4", "mp4")
 
 # Check if camera opened successfully
 if (cap.isOpened() == False):
@@ -65,7 +68,6 @@ while (True):
         cv2.imshow('frame2', frame2)
 
         if val != 'eof' and audio_frame is not None:
-            # audio
             img, t = audio_frame
 
         # Press Q on keyboard to stop recording

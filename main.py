@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from ffpyplayer.player import MediaPlayer
 
 p0 = 49, 48
 p1 = 679, 236

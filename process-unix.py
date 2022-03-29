@@ -2,9 +2,12 @@ import cv2
 import numpy as np
 import time
 import os
+import logging
 from multiprocessing import Process, current_process
 from pydub import AudioSegment
 from pydub.playback import play
+
+logging.basicConfig(level=logging.ERROR)
 
 start_time = time.time()
 

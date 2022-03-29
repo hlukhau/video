@@ -3,13 +3,13 @@ import numpy as np
 import time
 import os
 from multiprocessing import Process, current_process
-from ffpyplayer.player import MediaPlayer
-
 from pydub import AudioSegment
 from pydub.playback import play
 
-#player = MediaPlayer('3.mp4')
 start_time = time.time()
+
+tape = AudioSegment.from_file('3.mp4', format='mp4')
+process = Process(target=play, args=(tape,))
 
 
 def video_player(name):
@@ -36,6 +36,7 @@ def video_player(name):
 
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
+
 
     print(frame_width, frame_height)
 
@@ -82,7 +83,5 @@ def video_player(name):
 if __name__ == '__main__':
     proc1 = Process(target=video_player, args=('video',))
     proc1.start()
-    player = MediaPlayer('3.mp4')
     proc1.join()
-    player.close_player()
 

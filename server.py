@@ -4,6 +4,8 @@ import zmq
 import time
 import signal
 import sys
+import logging
+logging.basicConfig(level=logging.ERROR)
 
 context = zmq.Context()
 footage_socket = context.socket(zmq.PUB)

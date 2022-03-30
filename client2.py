@@ -22,6 +22,6 @@ while True:
     source = cv2.imdecode(npimg, 1)
     cv2.imshow("Stream", source)
 
-    if cv2.waitKey(30) & 0xff == ord('q'):
+    if cv2.waitKey(1) & 0xff == ord('q'):
         cv2.destroyAllWindows()
         break

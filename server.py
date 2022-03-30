@@ -39,7 +39,7 @@ while True:
     sleep = max(1, int(play_time - elapsed))
     cv2.imshow('server', frame)
 
-    if cv2.waitKey(sleep) & 0xff == ord('q'):
+    if cv2.waitKey(sleep) & 0xff == 27:
         camera.release()
         cv2.destroyAllWindows()
         break

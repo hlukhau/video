@@ -4,19 +4,18 @@ import base64
 import numpy as np
 
 context = zmq.Context()
-footage_socket = context.socket(zmq.SUB)
-footage_socket.bind('tcp://*:5556')
-footage_socket.setsockopt_string(zmq.SUBSCRIBE, np.compat.unicode(''))
+receiver = context.socket(zmq.SUB)
+receiver.bind('tcp://*:5556')
+receiver.setsockopt_string(zmq.SUBSCRIBE, np.compat.unicode(''))
+receiver.setsockopt(zmq.RCVTIMEO, 1000)
 
 while True:
-    try:
-        frame = footage_socket.recv_string()
-        img = base64.b64decode(frame)
-        npimg = np.fromstring(img, dtype=np.uint8)
-        source = cv2.imdecode(npimg, 1)
-        cv2.imshow("Stream", source)
-        cv2.waitKey(1)
+    frame = receiver.recv_string()
+    img = base64.b64decode(frame)
+    npimg = np.frombuffer(img, dtype=np.uint8)
+    source = cv2.imdecode(npimg, 1)
+    cv2.imshow("Stream", source)
 
-    except KeyboardInterrupt:
+    if cv2.waitKey(30) & 0xff == ord('q'):
         cv2.destroyAllWindows()
         break

@@ -2,12 +2,16 @@ import cv2
 import zmq
 import base64
 import numpy as np
+import sys
 import logging
+
+print(sys.argv[1])
+
 logging.basicConfig(level=logging.ERROR)
 
 context = zmq.Context()
 receiver = context.socket(zmq.SUB)
-receiver.bind('tcp://*:5557')
+receiver.bind('tcp://*:' + sys.argv[1])
 receiver.setsockopt_string(zmq.SUBSCRIBE, np.compat.unicode(''))
 receiver.setsockopt(zmq.RCVTIMEO, 1000)
 

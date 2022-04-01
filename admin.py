@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+import cv2
 
 app = Flask(__name__)
 
@@ -25,7 +26,22 @@ def upload_file():
     if request.method == 'POST':
         f = request.files['file']
         f.save('files/' + f.filename)
-        return 'file uploaded successfully'
+        sub = cv2.VideoCapture('files/' + f.filename)
+        sub.set(cv2.CAP_PROP_POS_MSEC, 2000)  # just cue to 20 sec. position
+        success, image = sub.read()
+        if success:
+            print('success')
+            h, w, _ = image.shape
+            width = int(w)
+            height = int(h)
+            height = int(128 * height / width)
+            width = 128
+            print(w, h)
+            print(width, height)
+            resized = cv2.resize(image, (width, height))
+            cv2.imwrite('static/' + f.filename + ".jpg", image)  # save frame as JPEG file
+            cv2.imwrite('static/' + f.filename + "s.jpg", resized)  # save frame as JPEG file
+        return "file uploaded successfully<br /><img src='" + 'static/' + f.filename + "s.jpg" + "'><br><img src='" + 'static/' + f.filename + ".jpg" + "'>"
 
 
 if __name__ == '__main__':

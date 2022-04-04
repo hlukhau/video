@@ -38,3 +38,9 @@ dst = cv.undistort(img, mtx, dist, None, newcameramtx)
 x, y, w, h = roi
 dst = dst[y:y+h, x:x+w]
 cv.imwrite('calibresult.png', dst)
+
+# undistort
+mapx, mapy = cv.initUndistortRectifyMap(mtx, dist, None, newcameramtx, (w,h), 5)
+dst2 = cv.remap(img, mapx, mapy, cv.INTER_LINEAR)
+dst2 = dst2[y:y+h, x:x+w]
+cv.imwrite('calibresult2.png', dst)

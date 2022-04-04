@@ -44,3 +44,10 @@ mapx, mapy = cv.initUndistortRectifyMap(mtx, dist, None, newcameramtx, (w,h), 5)
 dst2 = cv.remap(img, mapx, mapy, cv.INTER_LINEAR)
 dst2 = dst2[y:y+h, x:x+w]
 cv.imwrite('calibresult2.png', dst)
+
+mean_error = 0
+for i in range(len(objpoints)):
+    imgpoints2, _ = cv.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
+    error = cv.norm(imgpoints[i], imgpoints2, cv.NORM_L2)/len(imgpoints2)
+    mean_error += error
+print( "total error: {}".format(mean_error/len(objpoints)) )

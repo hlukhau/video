@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return "Index Page - goto <a href='/hello?coords=[[10,20],[30,13]]&param=[1200,600]'>hello</a>"
+    return "Index Page - goto <a href='/hello?coords=[[10,20],[30,13]]&param=[1200,600]'>hello</a><br>or go to drag and drop page <a href='static/drag-drop.html'>PAGE</a>"
 
 
 @app.route('/hello')
@@ -19,6 +19,13 @@ def hello():
 @app.route('/upload')
 def upload_html():
     return render_template('upload.html')
+
+@app.route('/send', methods=['GET', 'POST'])
+def send_file():
+    if request.method == 'POST':
+        f = request.files['file']
+        f.save('files/' + f.filename)
+        return "file uploaded successfully"
 
 
 @app.route('/uploader', methods=['GET', 'POST'])

@@ -1,5 +1,9 @@
 from pymongo import MongoClient
 
+# Run mongo in docker
+# docker run --network="host" --name mongodb -d -p 27017:27017 -v mongodbdata:/data/db mongo
+#
+
 client = MongoClient('mongodb://localhost:27017/afm')
 db = client["afm"]
 db.projects.drop()

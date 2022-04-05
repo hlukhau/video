@@ -1,4 +1,7 @@
+import json
+
 from pymongo import MongoClient
+from bson.json_util import dumps, loads
 
 # Run mongo in docker
 # docker run --network="host" --name mongodb -d -p 27017:27017 -v mongodbdata:/data/db mongo
@@ -40,28 +43,30 @@ db.projects.insert_one(project01)
 db.projects.insert_one(project02)
 db.projects.insert_one(project03)
 
-myquery = { "_id": "1" }
-newvalues = { "$set": { "name": "Project 01" } }
+myquery = {"_id": "1"}
+newvalues = {"$set": {"name": "Project 01"}}
 db.projects.update_one(myquery, newvalues)
 
-myquery = { "_id": "2" }
-newvalues = { "$set": { "author": "Vova Hlukhau" } }
+myquery = {"_id": "2"}
+newvalues = {"$set": {"author": "Vova Hlukhau"}}
 db.projects.update_one(myquery, newvalues)
 
-#print "customers" after the update:
+#print "customers" after the update
 for x in db.projects.find():
   print(x)
 
-for x in db.projects.find({}, {"category": "Advertising", "name" : 1}):
+for x in db.projects.find({}, {"category": "Advertising", "name": 1}):
   print(x)
 
 mydoc = db.projects.find().sort("name", -1)
 for x in mydoc:
-  print(x)
+    json_data = dumps(x, indent=2)
+    print(json_data)
 
 mydoc = db.projects.find().sort("name", 1)
 for x in mydoc:
-  print(x)
+    for n in x:
+        print(n, " = ", x[n])
 
 
 pipeline = [
@@ -70,6 +75,6 @@ pipeline = [
 
 print(list(db.projects.aggregate(pipeline)))
 
-myquery = { "author": "Hlukhau Dzmitry" }
+myquery = {"author": "Hlukhau Dzmitry"}
 db.projects.delete_one(myquery)
 

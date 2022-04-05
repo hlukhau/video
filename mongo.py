@@ -1,8 +1,7 @@
 from pymongo import MongoClient
 
 client = MongoClient('mongodb://localhost:27017/afm')
-db = client.admin
-
+db = client["afm"]
 serverStatusResult = db.command("serverStatus")
 
 print(serverStatusResult)
@@ -23,7 +22,7 @@ project02 = {
 "category" : "Advertising"
 }
 
-#db.projects.insert_one(project02)
+db.projects.insert_one(project01)
 
 myquery = { "_id": "1" }
 newvalues = { "$set": { "name": "Project 01" } }
@@ -47,3 +46,6 @@ for x in mydoc:
 mydoc = db.projects.find().sort("name", 1)
 for x in mydoc:
   print(x)
+
+myquery = { "author": "Hlukhau Dzmitry" }
+db.projects.delete_one(myquery)

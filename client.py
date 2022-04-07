@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.ERROR)
 
 
 first = 1
-waitImage = cv2.imread('static/wait.jpg')
+waitImage = cv2.imread('static/wait.webp')
 cv2.imshow("Start", waitImage)
 cv2.waitKey(100)
 

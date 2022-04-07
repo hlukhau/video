@@ -1,5 +1,5 @@
 import json
-
+import cv2
 from pymongo import MongoClient
 from bson.json_util import dumps, loads
 
@@ -78,3 +78,22 @@ print(list(db.projects.aggregate(pipeline)))
 myquery = {"author": "Hlukhau Dzmitry"}
 db.projects.delete_one(myquery)
 
+img = cv2.imread('left/2.jpg')
+print('Image Dimension is', img.shape)
+print('Image Height is', img.shape[0])
+print('Image Width is', img.shape[1])
+print('Number of Channels is', img.shape[2])
+
+# Window name in which image is displayed
+window_name = 'image'
+
+# Using cv2.imshow() method
+# Displaying the image
+cv2.imshow(window_name, img)
+
+# waits for user to press any key
+# (this is necessary to avoid Python kernel form crashing)
+cv2.waitKey(0)
+
+# closing all open windows
+cv2.destroyAllWindows()

@@ -9,13 +9,28 @@
   </head>
   <body>
     <img src="/static/images/logo.png" id="static" width="90px" style="float: left;" />
-    <div class="glitch" data-text="Welcome to anamorph Projector">Welcome to anamorph Projector</div>
+    <div class="glitch" data-text="Welcome to {{project}}">Welcome to {{project}}</div>
     <div class="toolbar">
       <div class="copyright">Copyright (c) Vladimir Hlukhau, 2022</div>
-      <button class="button" style="vertical-align:middle" onclick="location.href='/'" type="button"><span>Home </span></button>
-      <button class="button" style="vertical-align:middle" onclick="location.href='/'" type="button"><span>Upload image </span></button>
+      <button class="button" style="vertical-align:middle" onclick="location.href='/'" type="button"><span>Upload scene </span></button>
       <button class="button" style="vertical-align:middle" onclick="location.href='/'" type="button"><span>Upload video </span></button>
       <button class="button" style="vertical-align:middle" onclick="location.href='/'" type="button"><span>Calibrate </span></button>
+
+      <span>
+        <div>
+      {% if scene != "": %}
+          <table>
+              <tr>
+                  <td valign="middle">Scene loading:</td>
+                  <td valign="top"><img src='{{scene}}' width="100px" /></td>
+              </tr>
+          </table>
+      {% else %}
+          No scene
+      {% endif %}
+        </div>
+      </span>
+
     </div>
   </body>
 </html>

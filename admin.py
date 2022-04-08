@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 import cv2
 import os
+import glob
 
 app = Flask(__name__)
 
@@ -8,13 +9,18 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     scene = ""
+    video = ""
     if (os.path.exists('static/projects/demo/scene/scene.jpg')):
         scene = '/static/projects/demo/scene/scene.jpg'
         print(scene)
+
+        if (os.path.exists('static/projects/demo/video/small.jpg')):
+            video = '/static/projects/demo/video/small.jpg'
+            print(video)
     else:
         print('no scene')
 
-    return render_template('main.html', project="Example project", scene=scene)
+    return render_template('main.html', project="Example project", scene=scene, video=video)
 #    return "Index Page - goto <a href='/hello?coords=[[10,20],[30,13]]&param=[1200,600]'>hello</a><br>or go to drag and drop page <a href='static/drag-drop.html'>PAGE</a><br>go to <a href='static/main.html'>Bootstrap</a> page"
 
 

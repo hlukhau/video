@@ -1,0 +1,29 @@
+          <span>
+            <div>
+          {% if scene != "": %}
+              <table>
+                  <tr>
+                      <td valign="middle">Scene loaded: </td>
+                      <td valign="top"><img src='{{scene}}' width="100px" /></td>
+                  </tr>
+              </table>
+          {% else %}
+              No scene
+          {% endif %}
+            </div>
+          </span>
+
+          <span>
+            <div>
+          {% if video != "": %}
+              <table>
+                  <tr>
+                      <td valign="middle">Video loaded: </td>
+                      <td valign="top"><img src='{{video}}' width="100px" /></td>
+                  </tr>
+              </table>
+          {% else %}
+              No scene
+          {% endif %}
+            </div>
+          </span>

@@ -6,46 +6,42 @@
     <link rel="stylesheet" href="/static//css/mono-glitch.css">
 <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>-->
     <link href='https://fonts.googleapis.com/css?family=Varela' rel='stylesheet' type='text/css'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   </head>
   <body>
     <img src="/static/images/logo.png" id="static" width="90px" style="float: left;" />
     <div class="glitch" data-text="Welcome to {{project}}">Welcome to {{project}}</div>
     <div class="toolbar">
       <div class="copyright">Copyright (c) Vladimir Hlukhau, 2022</div>
-      <button class="button" style="vertical-align:middle" onclick="location.href='/'" type="button"><span>Upload scene </span></button>
+      <button class="button" style="vertical-align:middle" onclick="loadContent()" type="button"><span>Upload scene </span></button>
       <button class="button" style="vertical-align:middle" onclick="location.href='/'" type="button"><span>Upload video </span></button>
       <button class="button" style="vertical-align:middle" onclick="location.href='/'" type="button"><span>Calibrate </span></button>
+      <button class="button" style="vertical-align:middle" onclick="location.href='/exit'" type="button"><span>Exit </span></button>
 
-      <span>
-        <div>
-      {% if scene != "": %}
-          <table>
-              <tr>
-                  <td valign="middle">Scene loaded: </td>
-                  <td valign="top"><img src='{{scene}}' width="100px" /></td>
-              </tr>
-          </table>
-      {% else %}
-          No scene
-      {% endif %}
-        </div>
-      </span>
+      <div id="content">
 
-      <span>
-        <div>
-      {% if video != "": %}
-          <table>
-              <tr>
-                  <td valign="middle">Video loaded: </td>
-                  <td valign="top"><img src='{{video}}' width="100px" /></td>
-              </tr>
-          </table>
-      {% else %}
-          No scene
-      {% endif %}
-        </div>
-      </span>
-
+      </div>
     </div>
   </body>
+
+    <script>
+
+function loadContent() {
+    var param = {"project": "demo"};
+
+    $.ajax({
+      type: "POST",
+      url: "/content",
+      data: JSON.stringify(param),
+      contentType: "application/json",
+      success: function(result) {
+        console.log("Result:");
+        console.log(result);
+
+        var div = document.getElementById('content');
+        div.innerHTML = result;
+      }
+    });
+}
+    </script>
 </html>

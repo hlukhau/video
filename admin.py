@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session, redirect
 import cv2
 import os
 import glob
 
 app = Flask(__name__)
-
+app.secret_key = "super secret key"
 
 @app.route('/')
 def index():
@@ -20,8 +20,35 @@ def index():
     else:
         print('no scene')
 
+    if session.get('project') == None:
+        session['project'] = 'Undefined'
+
+    print("Session project: " + session.get('project'))
     return render_template('main.html', project="Example project", scene=scene, video=video)
 #    return "Index Page - goto <a href='/hello?coords=[[10,20],[30,13]]&param=[1200,600]'>hello</a><br>or go to drag and drop page <a href='static/drag-drop.html'>PAGE</a><br>go to <a href='static/main.html'>Bootstrap</a> page"
+
+
+@app.route('/content', methods=['POST', 'GET'])
+def content():
+    if request.method == "POST":
+        data = request.get_json()
+        session['project'] = data['project']
+
+    scene = ""
+    video = ""
+    if (os.path.exists('static/projects/demo/scene/scene.jpg')):
+        scene = '/static/projects/demo/scene/scene.jpg'
+        print(scene)
+
+        if (os.path.exists('static/projects/demo/video/small.jpg')):
+            video = '/static/projects/demo/video/small.jpg'
+            print(video)
+    else:
+        print('no scene')
+
+    print("Session project: " + session.get('project'))
+
+    return render_template('content.html', project="Example project", scene=scene, video=video)
 
 
 @app.route('/hello')
@@ -66,6 +93,12 @@ def upload_file():
         return "file uploaded successfully<br /><img src='" + 'static/' + f.filename + "s.jpg" + "'><br><img src='" + 'static/' + f.filename + ".jpg" + "'>"
 
 
+@app.route('/exit')
+def exit():
+    session.pop('project', None)
+    return redirect('/')
+
 if __name__ == '__main__':
     app.config['UPLOAD_FOLDER'] = 'files'
     app.run(host='0.0.0.0', port=5555)
+

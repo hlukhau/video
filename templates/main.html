@@ -43,5 +43,36 @@ function loadContent() {
       }
     });
 }
+
+function upload(file, path) {
+  console.log(file, path);
+  var url = '/send?path=' + path;
+  var xhr = new XMLHttpRequest()
+  var formData = new FormData()
+  xhr.open('POST', url, true)
+  xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
+  formData.append('file', file)
+  xhr.send(formData)
+  xhr.addEventListener('readystatechange', function(e) {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      loadContent()
+    }
+  })
+}
+
+function perform(url) {
+  var xhr = new XMLHttpRequest()
+  xhr.open('GET', url, true)
+  xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
+  xhr.send()
+
+  xhr.addEventListener('readystatechange', function(e) {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      loadContent()
+    }
+  })
+}
+
+loadContent()
     </script>
 </html>

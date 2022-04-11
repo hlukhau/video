@@ -61,7 +61,7 @@ p {
 <body>
 <div id="drop-area">
   <form class="my-form">
-    <p>Upload multiple files with the file dialog or by dragging and dropping images onto the dashed region</p>
+    <p>{{message}}</p>
     <input type="file" id="fileElem" multiple accept="image/*" onchange="handleFiles(this.files)">
     <label class="button" for="fileElem">Select some files</label>
   </form>
@@ -157,7 +157,7 @@ function previewFile(file) {
 }
 
 function uploadFile(file, i) {
-  var url = '/send'
+  var url = '/send?path={{path}}'
   var xhr = new XMLHttpRequest()
   var formData = new FormData()
   xhr.open('POST', url, true)

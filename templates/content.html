@@ -4,11 +4,19 @@
               <table>
                   <tr>
                       <td valign="middle">Scene loaded: </td>
-                      <td valign="top"><img src='{{scene}}' width="100px" /></td>
+                      <td valign="middle"><img src='{{scene}}' width="100px" /></td>
+                      <td valign="middle">
+                          <button class="button" style="vertical-align:middle" onclick="perform('/remove?path=static/projects/demo/scene/scene.jpg')" type="button"><span>Clear scene </span></button>
+                      </td>
+                      <td valign="middle">
+                          <button class="button" style="vertical-align:middle" onclick="perform('/')" type="button"><span>Setup monitors </span></button>
+                      </td>
                   </tr>
               </table>
           {% else %}
-              No scene
+                No scene
+                <input type="file" id="fileScene" accept="image/*" onchange="upload(this.files[0],'static/projects/demo/scene/')" hidden>
+                <button class="button" style="vertical-align:middle" onclick="document.getElementById('fileScene').click()" type="button"><span>Upload scene </span></button>
           {% endif %}
             </div>
           </span>
@@ -20,10 +28,19 @@
                   <tr>
                       <td valign="middle">Video loaded: </td>
                       <td valign="top"><img src='{{video}}' width="100px" /></td>
+                      <td valign="middle">
+                          <button class="button" style="vertical-align:middle" onclick="perform('/remove?path=static/projects/demo/video/small.jpg')" type="button"><span>Clear video </span></button>
+                      </td>
+                      <td valign="middle">
+                          <button class="button" style="vertical-align:middle" onclick="perform('/')" type="button"><span>Start stream </span></button>
+                      </td>
                   </tr>
               </table>
           {% else %}
-              No scene
+                No video
+                <input type="file" id="fileVideo" accept="video/*" onchange="upload(this.files[0],'static/projects/demo/video/')" hidden>
+                <button class="button" style="vertical-align:middle" onclick="document.getElementById('fileVideo').click()" type="button"><span>Upload scene </span></button>
           {% endif %}
             </div>
           </span>
+

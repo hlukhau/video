@@ -4,8 +4,9 @@ from pymongo import MongoClient
 from bson.json_util import dumps, loads
 
 # Run mongo in docker
-# docker run --network="host" --name mongodb -d -p 27017:27017 -v mongodbdata:/data/db mongo
-#
+# docker run --name mongodb -d -p 27017:27017 -v mongodbdata:/data/db mongo
+# docker run --name mongodb -d -p 27017:27017 mongodb
+# docker run --name mongodb -d -p 27017:27017 -v c:/data/db:/data/db mongo
 
 client = MongoClient('mongodb://localhost:27017/afm')
 db = client["afm"]

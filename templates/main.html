@@ -10,14 +10,13 @@
   </head>
   <body>
     <img src="/static/images/logo.png" id="static" width="90px" style="float: left;" />
-    <div class="glitch" data-text="Welcome to {{project}}">Welcome to {{project}}</div>
+    <div id="welcome"><div class="glitch" data-text="Welcome to {{project}} project">Welcome to {{project}} project</div></div>
     <div class="toolbar">
       <div class="copyright">Copyright (c) Vladimir Hlukhau, 2022</div>
-      <button class="button" style="vertical-align:middle" onclick="loadContent()" type="button"><span>Upload scene </span></button>
-      <button class="button" style="vertical-align:middle" onclick="location.href='/'" type="button"><span>Upload video </span></button>
-      <button class="button" style="vertical-align:middle" onclick="location.href='/'" type="button"><span>Calibrate </span></button>
-      <button class="button" style="vertical-align:middle" onclick="location.href='/exit'" type="button"><span>Exit </span></button>
-
+{%for project in projects%}
+      <button class="button" style="vertical-align:middle" onclick="loadContent('{{project.name}}')" type="button"><span>{{project.name}} </span></button>
+{%endfor%}
+      <button class="button" style="vertical-align:middle" onclick="/" type="button"><span>+ </span></button>
       <div id="content">
 
       </div>
@@ -26,8 +25,9 @@
 
     <script>
 
-function loadContent() {
-    var param = {"project": "demo"};
+function loadContent(project) {
+    var param = {"project": project};
+    console.log("project: " + project)
 
     $.ajax({
       type: "POST",
@@ -40,6 +40,8 @@ function loadContent() {
 
         var div = document.getElementById('content');
         div.innerHTML = result;
+        div = document.getElementById('welcome');
+        div.innerHTML = '<div class="glitch" data-text="Welcome to ' + project + ' project">Welcome to ' + project + ' project</div>';
       }
     });
 }
@@ -73,6 +75,6 @@ function perform(url) {
   })
 }
 
-loadContent()
+loadContent('demo')
     </script>
 </html>

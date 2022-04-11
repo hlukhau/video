@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, redirect
 import cv2
 import os
+import json
 import glob
 
 app = Flask(__name__)
@@ -10,43 +11,73 @@ app.secret_key = "super secret key"
 def index():
     scene = ""
     video = ""
-    if (os.path.exists('static/projects/demo/scene/scene.jpg')):
-        scene = '/static/projects/demo/scene/scene.jpg'
+
+    if session.get('project') == None:
+        session['project'] = 'demo'
+
+    project = session['project']
+
+    if (os.path.exists('static/projects/' + project + '/scene/scene.jpg')):
+        scene = '/static/projects/' + project + '/scene/scene.jpg'
         print(scene)
 
-        if (os.path.exists('static/projects/demo/video/small.jpg')):
-            video = '/static/projects/demo/video/small.jpg'
+        if (os.path.exists('static/projects/' + project + '/video/small.jpg')):
+            video = '/static/projects/' + project + '/video/small.jpg'
             print(video)
     else:
         print('no scene')
 
-    if session.get('project') == None:
-        session['project'] = 'Undefined'
+    with open('files/projects.json') as json_file:
+        projects = json.load(json_file)
+
+
 
     print("Session project: " + session.get('project'))
-    return render_template('main.html', project="Example project", scene=scene, video=video)
+    return render_template('main.html', project=session['project'], scene=scene, video=video, projects=projects)
 #    return "Index Page - goto <a href='/hello?coords=[[10,20],[30,13]]&param=[1200,600]'>hello</a><br>or go to drag and drop page <a href='static/drag-drop.html'>PAGE</a><br>go to <a href='static/main.html'>Bootstrap</a> page"
+
+
+
+@app.route('/projects', methods=['GET'])
+def projects():
+    with open('files/projects.json') as json_file:
+        data = json.load(json_file)
+        print(json.dumps(data))
 
 
 @app.route('/content', methods=['POST', 'GET'])
 def content():
+    project = session['project']
+
     if request.method == "POST":
         data = request.get_json()
-        session['project'] = data['project']
+
+        if "project" in data:
+            tmp = data.get('project')
+
+            if tmp != 'Undefined':
+                session['project'] = data['project']
+                project = data['project']
+                if (os.path.exists('static/projects/' + project) != True):
+                    os.mkdir('static/projects/' + project)
+                    os.mkdir('static/projects/' + project + '/scene')
+                    os.mkdir('static/projects/' + project + '/video')
 
     scene = ""
     video = ""
-    if (os.path.exists('static/projects/demo/scene/scene.jpg')):
-        scene = '/static/projects/demo/scene/scene.jpg'
+    project = session['project']
+
+    if (os.path.exists('static/projects/' + project + '/scene/scene.jpg')):
+        scene = '/static/projects/' + project + '/scene/scene.jpg'
         print(scene)
 
-    if (os.path.exists('static/projects/demo/video/small.jpg')):
-        video = '/static/projects/demo/video/small.jpg'
+    if (os.path.exists('static/projects/' + project + '/video/small.jpg')):
+        video = '/static/projects/' + project + '/video/small.jpg'
         print(video)
 
     print("Session project: " + session.get('project'))
 
-    return render_template('content.html', project="Example project", scene=scene, video=video)
+    return render_template('content.html', project=session['project'], scene=scene, video=video)
 
 
 @app.route('/hello')
@@ -63,6 +94,7 @@ def upload_html():
 
 @app.route('/send', methods=['GET', 'POST'])
 def send_file():
+    project = session['project']
     path = request.args.get('path')
     print("send: " + path)
 
@@ -72,10 +104,10 @@ def send_file():
 
         if path.find("scene") != -1:
             print("save")
-            f.save("static/projects/demo/scene/scene.jpg")
+            f.save("static/projects/" + project + "/scene/scene.jpg")
 
         if path.find("video") != -1:
-            f.save("static/projects/demo/video/video.mp4")
+            f.save("static/projects/" + project + "/video/video.mp4")
             sub = cv2.VideoCapture('files/' + f.filename)
             sub.set(cv2.CAP_PROP_POS_MSEC, 2000)  # just cue to 20 sec. position
             success, image = sub.read()
@@ -90,7 +122,7 @@ def send_file():
                 print(w, h)
                 print(width, height)
                 resized = cv2.resize(image, (width, height))
-                cv2.imwrite("static/projects/demo/video/small.jpg", resized)  # save frame as JPEG file
+                cv2.imwrite("static/projects/" + project + "/video/small.jpg", resized)  # save frame as JPEG file
 
         return redirect('/')
 
@@ -126,14 +158,15 @@ def drop_down_upload():
 
 @app.route('/remove')
 def remove():
+    project = session['project']
     path = request.args.get('path')
 
     if path.find("scene") != -1:
-        os.remove("static/projects/demo/scene/scene.jpg")
+        os.remove("static/projects/" + project + "/scene/scene.jpg")
 
     if path.find("video") != -1:
-        os.remove("static/projects/demo/video/small.jpg")
-        os.remove("static/projects/demo/video/video.mp4")
+        os.remove("static/projects/" + project + "/video/small.jpg")
+        os.remove("static/projects/" + project + "/video/video.mp4")
 
     return redirect('/')
 
@@ -146,7 +179,9 @@ def exit():
 
 if __name__ == '__main__':
     app.config['UPLOAD_FOLDER'] = 'files'
-    app.run(host='0.0.0.0', port=5555)
+#    app.run(host='0.0.0.0', port=5555)
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=5555)
 
 
 

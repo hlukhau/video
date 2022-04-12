@@ -42,8 +42,8 @@
               </table>
           {% else %}
                 No video
-                <input type="file" id="fileVideo" accept="video/*" onchange="upload(this.files[0],'static/projects/{{project}}/video/')" hidden>
-                <button class="button" style="vertical-align:middle" onclick="document.getElementById('fileVideo').click()" type="button"><span>Upload scene </span></button>
+                <input type="file" id="fileVideo" accept="video/*" onchange="upload(this.files[0],'static/projects/{{project}}/video/', '{{project}}')" hidden>
+                <button id="{{project}}video" class="button" style="vertical-align:middle" onclick="document.getElementById('fileVideo').click()" type="button"><span>Upload scene </span></button>
           {% endif %}
             </div>
           </span>

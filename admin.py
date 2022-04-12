@@ -162,11 +162,14 @@ def remove():
     path = request.args.get('path')
 
     if path.find("scene") != -1:
-        os.remove("static/projects/" + project + "/scene/scene.jpg")
+        if (os.path.exists('static/projects/' + project + '/scene/scene.jpg')):
+            os.remove("static/projects/" + project + "/scene/scene.jpg")
 
     if path.find("video") != -1:
-        os.remove("static/projects/" + project + "/video/small.jpg")
-        os.remove("static/projects/" + project + "/video/video.mp4")
+        if (os.path.exists('static/projects/' + project + '/video/small.jpg')):
+            os.remove("static/projects/" + project + "/video/small.jpg")
+        if (os.path.exists('static/projects/' + project + '/video/video.mp4')):
+            os.remove("static/projects/" + project + "/video/video.mp4")
 
     return redirect('/')
 

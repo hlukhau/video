@@ -46,20 +46,31 @@ function loadContent(project) {
     });
 }
 
-function upload(file, path) {
-  console.log(file, path);
+function upload(file, path, project) {
+  console.log(file, path, project);
   var url = '/send?path=' + path;
   var xhr = new XMLHttpRequest()
   var formData = new FormData()
   xhr.open('POST', url, true)
   xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
   formData.append('file', file)
-  xhr.send(formData)
+
+  // Update progress (can be used to show progress indicator)
+  xhr.upload.addEventListener("progress", function(e) {
+    var button = document.getElementById(project + "video");
+    console.log(project + "video");
+    console.log(button);
+    button.style = "width: 500px; display: none;";
+    //updateProgress(i, (e.loaded * 100.0 / e.total) || 100)
+  })
+
   xhr.addEventListener('readystatechange', function(e) {
     if (xhr.readyState == 4 && xhr.status == 200) {
       loadContent()
     }
   })
+
+  xhr.send(formData)
 }
 
 function perform(url) {

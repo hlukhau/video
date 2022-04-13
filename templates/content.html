@@ -7,11 +7,11 @@
                       <td valign="middle"><img src='{{scene}}' width="100px" /></td>
           {% if project != "demo": %}
                       <td valign="middle">
-                          <button class="button" style="vertical-align:middle" onclick="perform('/remove?path=static/projects/{{project}}/scene/scene.jpg')" type="button"><span>Clear scene </span></button>
+                          <button class="button" style="vertical-align:middle" onclick="perform('/remove?path=static/projects/{{project}}/scene/scene.jpg', '{{project}}')" type="button"><span>Clear scene </span></button>
                       </td>
           {% endif %}
                       <td valign="middle">
-                          <button class="button" style="vertical-align:middle" onclick="perform('/')" type="button"><span>Setup monitors </span></button>
+                          <button class="button" style="vertical-align:middle" onclick="perform('/', '{{project}}')" type="button"><span>Setup monitors </span></button>
                       </td>
                   </tr>
               </table>
@@ -29,21 +29,30 @@
               <table>
                   <tr>
                       <td valign="middle">Video loaded: </td>
-                      <td valign="top"><img src='{{video}}' width="100px" /></td>
+                      <td valign="middle"><img src='{{video}}' width="100px" /></td>
           {% if project != "demo": %}
                       <td valign="middle">
-                          <button class="button" style="vertical-align:middle" onclick="perform('/remove?path=static/projects/{{project}}/video/small.jpg')" type="button"><span>Clear video </span></button>
+                          <button class="button" style="vertical-align:middle" onclick="perform('/remove?path=static/projects/{{project}}/video/small.jpg', '{{project}}')" type="button"><span>Clear video </span></button>
                       </td>
           {% endif %}
                       <td valign="middle">
-                          <button class="button" style="vertical-align:middle" onclick="perform('/')" type="button"><span>Start stream </span></button>
+                          <button class="button" style="vertical-align:middle" onclick="perform('/', '{{project}}')" type="button"><span>Start stream </span></button>
                       </td>
                   </tr>
               </table>
           {% else %}
-                No video
+              <table>
+                  <tr>
+                      <td valign="middle">No video: </td>
                 <input type="file" id="fileVideo" accept="video/*" onchange="upload(this.files[0],'static/projects/{{project}}/video/', '{{project}}')" hidden>
-                <button id="{{project}}video" class="button" style="vertical-align:middle" onclick="document.getElementById('fileVideo').click()" type="button"><span>Upload scene </span></button>
+                      <td valign="middle">
+                        <button id="{{project}}video" class="button" style="vertical-align:middle" onclick="document.getElementById('fileVideo').click()" type="button"><span>Upload scene </span></button>
+                      </td>
+                      <td valign="middle">
+                        <img id="{{project}}gif" src="static/images/upload.gif" width="50px" style="display: none;">
+                      </td>
+                  </tr>
+              </table>
           {% endif %}
             </div>
           </span>

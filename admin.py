@@ -3,6 +3,7 @@ import cv2
 import os
 import json
 import glob
+import time
 
 app = Flask(__name__)
 app.secret_key = "super secret key"
@@ -19,20 +20,13 @@ def index():
 
     if (os.path.exists('static/projects/' + project + '/scene/scene.jpg')):
         scene = '/static/projects/' + project + '/scene/scene.jpg'
-        print(scene)
 
         if (os.path.exists('static/projects/' + project + '/video/small.jpg')):
             video = '/static/projects/' + project + '/video/small.jpg'
-            print(video)
-    else:
-        print('no scene')
 
     with open('files/projects.json') as json_file:
         projects = json.load(json_file)
 
-
-
-    print("Session project: " + session.get('project'))
     return render_template('main.html', project=session['project'], scene=scene, video=video, projects=projects)
 #    return "Index Page - goto <a href='/hello?coords=[[10,20],[30,13]]&param=[1200,600]'>hello</a><br>or go to drag and drop page <a href='static/drag-drop.html'>PAGE</a><br>go to <a href='static/main.html'>Bootstrap</a> page"
 
@@ -42,7 +36,6 @@ def index():
 def projects():
     with open('files/projects.json') as json_file:
         data = json.load(json_file)
-        print(json.dumps(data))
 
 
 @app.route('/content', methods=['POST', 'GET'])
@@ -69,13 +62,9 @@ def content():
 
     if (os.path.exists('static/projects/' + project + '/scene/scene.jpg')):
         scene = '/static/projects/' + project + '/scene/scene.jpg'
-        print(scene)
 
     if (os.path.exists('static/projects/' + project + '/video/small.jpg')):
         video = '/static/projects/' + project + '/video/small.jpg'
-        print(video)
-
-    print("Session project: " + session.get('project'))
 
     return render_template('content.html', project=session['project'], scene=scene, video=video)
 
@@ -96,14 +85,11 @@ def upload_html():
 def send_file():
     project = session['project']
     path = request.args.get('path')
-    print("send: " + path)
 
     if request.method == 'POST':
         f = request.files['file']
-        print("path: " + path + f.filename)
 
         if path.find("scene") != -1:
-            print("save")
             f.save("static/projects/" + project + "/scene/scene.jpg")
 
         if path.find("video") != -1:
@@ -113,17 +99,15 @@ def send_file():
             success, image = sub.read()
 
             if success:
-                print('success')
                 h, w, _ = image.shape
                 width = int(w)
                 height = int(h)
                 height = int(128 * height / width)
                 width = 128
-                print(w, h)
-                print(width, height)
                 resized = cv2.resize(image, (width, height))
                 cv2.imwrite("static/projects/" + project + "/video/small.jpg", resized)  # save frame as JPEG file
 
+        time.sleep(1)
         return redirect('/')
 
 @app.route('/uploader', methods=['GET', 'POST'])
@@ -135,14 +119,11 @@ def upload_file():
         sub.set(cv2.CAP_PROP_POS_MSEC, 2000)  # just cue to 20 sec. position
         success, image = sub.read()
         if success:
-            print('success')
             h, w, _ = image.shape
             width = int(w)
             height = int(h)
             height = int(128 * height / width)
             width = 128
-            print(w, h)
-            print(width, height)
             resized = cv2.resize(image, (width, height))
             cv2.imwrite('static/' + f.filename + ".jpg", image)  # save frame as JPEG file
             cv2.imwrite('static/' + f.filename + "s.jpg", resized)  # save frame as JPEG file

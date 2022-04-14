@@ -16,7 +16,7 @@ def index():
     if session.get('project') == None:
         session['project'] = 'demo'
 
-    project = session['project']
+    project = session.get('project')
 
     if (os.path.exists('static/projects/' + project + '/scene/scene.jpg')):
         scene = '/static/projects/' + project + '/scene/scene.jpg'
@@ -27,7 +27,7 @@ def index():
     with open('files/projects.json') as json_file:
         projects = json.load(json_file)
 
-    return render_template('main.html', project=session['project'], scene=scene, video=video, projects=projects)
+    return render_template('main.html', project=project, scene=scene, video=video, projects=projects)
 #    return "Index Page - goto <a href='/hello?coords=[[10,20],[30,13]]&param=[1200,600]'>hello</a><br>or go to drag and drop page <a href='static/drag-drop.html'>PAGE</a><br>go to <a href='static/main.html'>Bootstrap</a> page"
 
 
@@ -80,6 +80,31 @@ def hello():
 def upload_html():
     path = request.args.get('path')
     return render_template('upload.html', path=path)
+
+
+@app.route('/add')
+def add_project():
+    name = request.args.get('name')
+    with open('files/projects.json') as json_file:
+        projects = json.load(json_file)
+        element = {"name":name}
+        exists = element in projects
+
+        if not exists:
+            projects.append(element)
+            print(projects)
+
+            with open('files/projects.json', 'w') as outfile:
+                json.dump(projects, outfile)
+                session['project'] = name
+
+                if (os.path.exists('static/projects/' + name) != True):
+                    os.mkdir('static/projects/' + name)
+                    os.mkdir('static/projects/' + name + '/scene')
+                    os.mkdir('static/projects/' + name + '/video')
+
+    return redirect('/')
+
 
 @app.route('/send', methods=['GET', 'POST'])
 def send_file():
@@ -135,6 +160,37 @@ def drop_down_upload():
     path = request.args.get('path')
     message = request.args.get('message')
     return render_template('drag-drop.html', path=path, message=message)
+
+
+@app.route('/delete')
+def delete():
+    project = session.get('project')
+    element = {"name": project}
+
+    if (os.path.exists('static/projects/' + project + '/scene/scene.jpg')):
+        os.remove("static/projects/" + project + "/scene/scene.jpg")
+
+    if (os.path.exists('static/projects/' + project + '/video/small.jpg')):
+        os.remove("static/projects/" + project + "/video/small.jpg")
+    if (os.path.exists('static/projects/' + project + '/video/video.mp4')):
+        os.remove("static/projects/" + project + "/video/video.mp4")
+
+    os.rmdir("static/projects/" + project + "/scene")
+    os.rmdir("static/projects/" + project + "/video")
+    os.rmdir("static/projects/" + project)
+
+    with open('files/projects.json') as json_file:
+        projects = json.load(json_file)
+
+        projects.remove(element)
+        with open('files/projects.json', 'w') as outfile:
+            json.dump(projects, outfile)
+            session['project'] = 'demo'
+
+    session['project'] = 'demo'
+
+    return redirect('/')
+
 
 
 @app.route('/remove')

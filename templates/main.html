@@ -16,7 +16,9 @@
 {%for project in projects%}
       <button class="button" style="vertical-align:middle" onclick="loadContent('{{project.name}}')" type="button"><span>{{project.name}} </span></button>
 {%endfor%}
-      <button class="button" style="vertical-align:middle" onclick="/" type="button"><span>+ </span></button>
+      <button class="button add" style="vertical-align:middle" onclick="add_project()" type="button"><span>+</span></button>
+        <span id="new-project-name" class="editable" contenteditable="true">New project</span>
+
       <div id="content">
 
       </div>
@@ -46,6 +48,22 @@ function loadContent(project) {
     });
 }
 
+
+function add_project() {
+    var name_element = document.getElementById("new-project-name");
+    var name = name_element.innerText;
+    var url = "/add?name=" + name;
+    location.href = url;
+}
+
+function add_project() {
+    var name_element = document.getElementById("new-project-name");
+    var name = name_element.innerText;
+    var url = "/add?name=" + name;
+    location.href = url;
+}
+
+
 function upload(file, path, project) {
   console.log(file, path, project);
   var url = '/send?path=' + path;
@@ -60,9 +78,14 @@ function upload(file, path, project) {
     var button = document.getElementById(project + "video");
     var gif = document.getElementById(project + "gif");
     console.log(project + "video");
-    console.log(button);
-    button.style = "display: none;";
-    gif.style = "display: inline;";
+    if (button) {
+        console.log(button);
+        button.style = "display: none;";
+    }
+
+    if (gif) {
+        gif.style = "display: inline;";
+    }
     //updateProgress(i, (e.loaded * 100.0 / e.total) || 100)
   })
 
@@ -95,6 +118,6 @@ function perform(url, project) {
   })
 }
 
-loadContent('demo')
+loadContent('{{project}}')
     </script>
 </html>

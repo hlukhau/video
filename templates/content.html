@@ -4,7 +4,7 @@
               <table>
                   <tr>
                       <td valign="middle">Scene loaded: </td>
-                      <td valign="middle"><img src='{{scene}}' width="100px" /></td>
+                      <td valign="middle"><img src='{{scene}}' onclick="location.href = '/edit?path=static/projects/{{project}}/scene/scene.jpg'" width="100px" /></td>
           {% if project != "demo": %}
                       <td valign="middle">
                           <button class="button" style="vertical-align:middle" onclick="perform('/remove?path=static/projects/{{project}}/scene/scene.jpg', '{{project}}')" type="button"><span>Clear scene </span></button>

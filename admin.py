@@ -193,9 +193,17 @@ def delete():
 
 
 
+@app.route('/edit')
+def edit():
+    project = session.get('project')
+    path = request.args.get('path')
+    print("edit: " + path)
+    return render_template('canvas-viewer.html', path=path, project=project)
+
+
 @app.route('/remove')
 def remove():
-    project = session['project']
+    project = session.get('project')
     path = request.args.get('path')
 
     if path.find("scene") != -1:

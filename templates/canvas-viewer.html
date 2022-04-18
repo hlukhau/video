@@ -67,7 +67,16 @@ class canvasView {
     this.oldx = this.mouseX;
     this.oldy = this.mouseY;
 
-    this.isMove = true;
+    if (event.button == 0) {
+      this.isMove = true;
+    }
+    if (event.button == 2) {
+      this.scale = this.w1 / this.image.width;
+      var x = (this.mouseX - this.x1) / this.scale;
+      var y = (this.mouseY - this.y1) / this.scale;
+      console.log(x, y);
+      console.log("coords: " + x + ", " + y);
+    }
   }
 
   mousemovelistener(event) {
@@ -91,14 +100,6 @@ class canvasView {
     this.mouse(event);
 
     this.isMove = false;
-
-    if (event.button == 2) {
-
-      scale = w1 / this.image.width;
-      x = (mouseX - this.x1) / scale;
-      y = (mouseY - this.y1) / scale;
-      console.log(x, y);
-    }
   }
 
   wheellistener(e) {

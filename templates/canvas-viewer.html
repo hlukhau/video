@@ -175,12 +175,26 @@ window.onload = function () {
   canvas.width = right.clientWidth;
   canvas.height = right.clientHeight;
   viewer = new canvasView(canvas, image);
+
+  var btn = document.getElementById("create-display");
+  btn.onclick=function(e) {
+
+    console.log(window.getComputedStyle(this).borderStyle);
+
+    if (window.getComputedStyle(this).borderStyle != 'inset') {
+      this.style.backgroundColor = 'red';
+      this.style.borderStyle = 'inset';
+    }
+    else {
+      this.style.backgroundColor = 'white';
+      this.style.borderStyle = 'outset';
+    }
+  }
 };
 
 
 function feelForm() {
 }
-
 
 feelForm();
 
@@ -204,7 +218,7 @@ feelForm();
               render width: <input type="text" name="width" value="720"><br />
            </form>
 
-
+          <input id="create-display" type="button" value="+" style="border-style:i nset;" />
 
          </div>
 

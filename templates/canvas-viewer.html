@@ -23,6 +23,11 @@ body{
   flex-grow: 1;
   background-color: silver;
 }
+
+
+
+
+.
     </style>
 
     <script>
@@ -30,8 +35,13 @@ body{
 'use strict';
 
 
+var point;
+var ps = new Map();
+
+
 class canvasView {
 
+  polygons = new Map();
 
   constructor(canvas, source) {
     this.canvas = canvas;
@@ -193,7 +203,11 @@ feelForm();
               </select><br />
               render width: <input type="text" name="width" value="720"><br />
            </form>
+
+
+
          </div>
+
          <div class="right" id="right">
             <canvas id=paint-canvas class="right"></canvas>
             <img id=source src={{path}} hidden></img>

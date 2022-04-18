@@ -9,6 +9,20 @@ body{
     -ms-user-select: none;
     user-select: none;
 }
+
+
+.main {
+  height: 100%;
+  display: flex;
+}
+.left {
+  float: left;
+  width: 200px;
+}
+.right {
+  flex-grow: 1;
+  background-color: silver;
+}
     </style>
 
     <script>
@@ -121,6 +135,10 @@ class canvasView {
 
 
   draw() {
+    var canvas = document.getElementById("paint-canvas");
+    var right = document.getElementById("right");
+    canvas.width = right.clientWidth;
+    canvas.height = right.clientHeight;
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.drawImage(this.image, this.x1, this.y1, this.w1, this.h1);
   }
@@ -128,38 +146,59 @@ class canvasView {
 };
 
 
+  var viewer;
 
+
+window.addEventListener('resize', function(event) {
+  viewer.draw();
+}, true);
 
 
 
 
 window.onload = function () {
-
   // Definitions
   var image = document.getElementById('source');
   var canvas = document.getElementById("paint-canvas");
-
-  var viewer = new canvasView(canvas, image);
-
+  var right = document.getElementById("right");
+  canvas.width = right.clientWidth;
+  canvas.height = right.clientHeight;
+  viewer = new canvasView(canvas, image);
 };
 
 
+function feelForm() {
+}
 
+
+feelForm();
 
     </script>
-
-
-
-
 
   </head>
 
 
   <body>
-<canvas id=paint-canvas width = 400 height = 400></canvas>
-<canvas id=source-canvas></canvas>
-<img id=source src={{path}} hidden></img>
-  </body>
 
+
+
+<div class="main">
+         <div class="left">Menu<br />
+           <form id="fields">
+              port: <input type="text" name="port" value="5556"><br />
+              aspect: <select name="aspect">
+                <option selected>16:9</option>
+                <option>4:3</option>
+              </select><br />
+              render width: <input type="text" name="width" value="720"><br />
+           </form>
+         </div>
+         <div class="right" id="right">
+            <canvas id=paint-canvas class="right"></canvas>
+            <img id=source src={{path}} hidden></img>
+         </div>
+</div>
+
+  </body>
 
 </html>

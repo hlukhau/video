@@ -17,7 +17,7 @@ body{
 }
 .left {
   float: left;
-  width: 200px;
+  width: 220px;
 }
 .right {
   flex-grow: 1;
@@ -34,14 +34,13 @@ body{
 
 'use strict';
 
+var ps = [];
 
-var point;
-var ps = new Map();
+var drawDisplay = false;
 
 
 class canvasView {
 
-  polygons = new Map();
 
   constructor(canvas, source) {
     this.canvas = canvas;
@@ -77,15 +76,18 @@ class canvasView {
     this.oldx = this.mouseX;
     this.oldy = this.mouseY;
 
-    if (event.button == 0) {
+    if (event.button == 2) {
       this.isMove = true;
     }
-    if (event.button == 2) {
+    if (event.button == 0) {
       this.scale = this.w1 / this.image.width;
       var x = (this.mouseX - this.x1) / this.scale;
       var y = (this.mouseY - this.y1) / this.scale;
-      console.log(x, y);
-      console.log("coords: " + x + ", " + y);
+
+      if (drawDisplay) {
+        ps.push({"x": x, "y": y});
+        viewer.draw();
+      }
     }
   }
 
@@ -103,6 +105,10 @@ class canvasView {
 
       this.oldx = this.mouseX;
       this.oldy = this.mouseY;
+    }
+
+    if (drawDisplay) {
+      this.draw();
     }
   }
 
@@ -146,12 +152,78 @@ class canvasView {
 
 
   draw() {
+    this.scale = this.w1 / this.image.width;
     var canvas = document.getElementById("paint-canvas");
     var right = document.getElementById("right");
     canvas.width = right.clientWidth;
     canvas.height = right.clientHeight;
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.drawImage(this.image, this.x1, this.y1, this.w1, this.h1);
+
+
+    this.context.strokeStyle = "rgba(255, 255, 255, 0.7)";
+    this.context.beginPath();
+    var first = true;
+    var oldx, oldy;
+
+    // draw temporally line
+    for (var p of ps) {
+      // screen x y
+      var x = this.x1 + p.x * this.scale;
+      var y = this.y1 + p.y * this.scale;
+
+      if (! first) {
+        this.context.beginPath();
+        this.context.moveTo(oldx, oldy);
+        this.context.lineTo(x, y);
+        this.context.closePath();
+        this.context.stroke();
+      }
+      first = false;
+      oldx = x;
+      oldy = y;
+    }
+    if (! first && drawDisplay) {
+      this.context.beginPath();
+      this.context.moveTo(oldx, oldy);
+      this.context.lineTo(this.mouseX, this.mouseY);
+      this.context.closePath();
+      this.context.stroke();
+    }
+
+    this.context.fillStyle = "rgba(0, 0, 255, 0.3)";
+    this.context.beginPath();
+    var first = true;
+
+    // draw temporally polygon
+    for (var p of ps) {
+      // screen x y
+      var x = this.x1 + p.x * this.scale;
+      var y = this.y1 + p.y * this.scale;
+
+      if (first) {
+         this.context.moveTo(x, y);
+      }
+      else {
+         this.context.lineTo(x, y);
+      }
+      first = false;
+    }
+    this.context.closePath();
+    this.context.fill();
+
+    // draw temporally points
+    this.context.fillStyle = "rgba(255, 0, 0, 0.5)";
+    this.context.strokeStyle = "rgba(255, 255, 255)";
+
+    for (var p of ps) {
+
+      // screen x y
+      var x = this.x1 + p.x * this.scale;
+      var y = this.y1 + p.y * this.scale;
+      this.context.fillRect(x - 5, y - 5, 11, 11);
+      this.context.strokeRect(x, y, 1, 1);
+    }
   }
 
 };
@@ -177,6 +249,7 @@ window.onload = function () {
   viewer = new canvasView(canvas, image);
 
   var btn = document.getElementById("create-display");
+
   btn.onclick=function(e) {
 
     console.log(window.getComputedStyle(this).borderStyle);
@@ -184,10 +257,15 @@ window.onload = function () {
     if (window.getComputedStyle(this).borderStyle != 'inset') {
       this.style.backgroundColor = 'red';
       this.style.borderStyle = 'inset';
+      drawDisplay = true;
+      ps = [];
+      viewer.draw();
     }
     else {
       this.style.backgroundColor = 'white';
       this.style.borderStyle = 'outset';
+      drawDisplay = false;
+      viewer.draw();
     }
   }
 };
@@ -209,22 +287,27 @@ feelForm();
 
 <div class="main">
          <div class="left">Menu<br />
-           <form id="fields">
-              port: <input type="text" name="port" value="5556"><br />
-              aspect: <select name="aspect">
-                <option selected>16:9</option>
-                <option>4:3</option>
-              </select><br />
-              render width: <input type="text" name="width" value="720"><br />
-           </form>
+            <form id="fields">
+               port: <br /><input type="text" name="port" value="5556"><br />
+               aspect: <br /><select name="aspect">
+                 <option selected>16:9</option>
+                 <option>4:3</option>
+               </select><br />
+               render width: <br /><input type="text" name="width" value="720"><br />
+            </form>
 
-          <input id="create-display" type="button" value="+" style="border-style:i nset;" />
+            <input id="create-display" type="button" value="+" style="border-style:i nset;" />
+
+            <br />
+            Monitor corner selection order:
+            <br />
+            <img src="/static/images/corners.png" />
 
          </div>
 
          <div class="right" id="right">
             <canvas id=paint-canvas class="right"></canvas>
-            <img id=source src={{path}} hidden></img>
+            <img id=source src={{path}} hidden />
          </div>
 </div>
 

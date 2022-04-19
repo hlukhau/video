@@ -35,6 +35,7 @@ body{
 'use strict';
 
 var ps = [];
+var polygons = [];
 
 var drawDisplay = false;
 
@@ -76,10 +77,10 @@ class canvasView {
     this.oldx = this.mouseX;
     this.oldy = this.mouseY;
 
-    if (event.button == 2) {
+    if (event.button == 0) {
       this.isMove = true;
     }
-    if (event.button == 0) {
+    if (event.button == 2) {
       this.scale = this.w1 / this.image.width;
       var x = (this.mouseX - this.x1) / this.scale;
       var y = (this.mouseY - this.y1) / this.scale;
@@ -91,7 +92,15 @@ class canvasView {
           if (ps.length == 4) {
             var btn = document.getElementById("create-display");
             btn.click();
+            polygons.push(ps);
           }
+      }
+      else {
+
+        if (ps.length == 4) {
+            console.log(isInside(ps[0].x, ps[0].y, ps[1].x, ps[1].y, ps[2].x, ps[2].y, x, y));
+            console.log(isInside(ps[2].x, ps[2].y, ps[3].x, ps[3].y, ps[0].x, ps[0].y, x, y));
+        }
       }
     }
   }
@@ -155,6 +164,28 @@ class canvasView {
     this.mouseY = e.clientY - boundings.top;
   }
 
+  drawPolygon(psp) {
+    this.context.fillStyle = "rgba(0, 0, 255, 0.3)";
+    this.context.beginPath();
+    var first = true;
+
+    // draw temporally polygon
+    for (var p of psp) {
+      // screen x y
+      var x = this.x1 + p.x * this.scale;
+      var y = this.y1 + p.y * this.scale;
+
+      if (first) {
+         this.context.moveTo(x, y);
+      }
+      else {
+         this.context.lineTo(x, y);
+      }
+      first = false;
+    }
+    this.context.closePath();
+    this.context.fill();
+  }
 
   draw() {
     this.scale = this.w1 / this.image.width;
@@ -196,26 +227,7 @@ class canvasView {
       this.context.stroke();
     }
 
-    this.context.fillStyle = "rgba(0, 0, 255, 0.3)";
-    this.context.beginPath();
-    var first = true;
-
-    // draw temporally polygon
-    for (var p of ps) {
-      // screen x y
-      var x = this.x1 + p.x * this.scale;
-      var y = this.y1 + p.y * this.scale;
-
-      if (first) {
-         this.context.moveTo(x, y);
-      }
-      else {
-         this.context.lineTo(x, y);
-      }
-      first = false;
-    }
-    this.context.closePath();
-    this.context.fill();
+    this.drawPolygon(ps);
 
     // draw temporally points
     this.context.fillStyle = "rgba(255, 0, 0, 0.5)";
@@ -275,6 +287,21 @@ window.onload = function () {
   }
 };
 
+function area(x1, y1, x2, y2, x3, y3) {
+   return Math.abs((x1*(y2-y3) + x2*(y3-y1)+ x3*(y1-y2))/2.0);
+};
+
+function isInside(x1, y1, x2, y2, x3, y3, x, y) {
+   var A = area (x1, y1, x2, y2, x3, y3);
+   var A1 = area (x, y, x2, y2, x3, y3);
+   var A2 = area (x1, y1, x, y, x3, y3);
+   var A3 = area (x1, y1, x2, y2, x, y);
+   console.log(Math.round(A), Math.round(A1+A2+A3));
+   return (Math.round(A) == Math.round(A1 + A2 + A3));
+}
+
+
+
 
 function feelForm() {
 }
@@ -292,7 +319,23 @@ feelForm();
 
 <div class="main">
          <div class="left">Menu<br />
-            <form id="fields">
+            <input id="create-display" type="button" value="+" style="border-style:i nset;" />
+            <br />
+            <br />
+            Monitor corner selection order:
+            <br />
+            <img src="/static/images/corners.png" />
+            <br />
+            <br />Controls:
+            <li> Scroll - left mouse
+            <li> Set point - right mouse
+            <li> Zoom - mouse wheel
+            <br />
+            <br />
+
+
+
+            <form id="fields" hidden>
                port: <br /><input type="text" name="port" value="5556"><br />
                aspect: <br /><select name="aspect">
                  <option selected>16:9</option>
@@ -300,13 +343,6 @@ feelForm();
                </select><br />
                render width: <br /><input type="text" name="width" value="720"><br />
             </form>
-
-            <input id="create-display" type="button" value="+" style="border-style:i nset;" />
-
-            <br />
-            Monitor corner selection order:
-            <br />
-            <img src="/static/images/corners.png" />
 
          </div>
 

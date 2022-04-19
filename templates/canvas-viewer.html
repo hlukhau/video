@@ -85,8 +85,13 @@ class canvasView {
       var y = (this.mouseY - this.y1) / this.scale;
 
       if (drawDisplay) {
-        ps.push({"x": x, "y": y});
-        viewer.draw();
+          ps.push({"x": x, "y": y});
+          viewer.draw();
+
+          if (ps.length == 4) {
+            var btn = document.getElementById("create-display");
+            btn.click();
+          }
       }
     }
   }

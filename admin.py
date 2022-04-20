@@ -109,7 +109,7 @@ def add_project():
 def points():
     project = session['project']
     points = request.get_json()
-    print(points)
+
     with open('static/projects/' + project + '/displays.json', 'w') as outfile:
         json.dump(points, outfile)
     return "Ok"

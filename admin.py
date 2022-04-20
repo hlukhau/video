@@ -208,7 +208,7 @@ def edit():
     project = session.get('project')
     path = request.args.get('path')
     print("edit: " + path)
-    points = '{}'
+    points = []
 
     if (os.path.exists('static/projects/' + project + '/displays.json')):
         print('static/projects/' + project + '/displays.json')

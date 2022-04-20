@@ -35,9 +35,73 @@ body{
 'use strict';
 
 var ps = [];
-var polygons = [];
+var displays = [];
 
 var drawDisplay = false;
+
+class Display {
+  constructor(canvasView, ps) {
+    this.view = canvasView;
+    this.points = ps;
+    this.selected = false;
+    this.port = "5556";
+    this.aspect = "16:9";
+    this.width = "720";
+  }
+
+    draw() {
+        var stroke = "rgba(255, 255, 255, 0.7)";
+        var fill = "rgba(0, 0, 255, 0.3)";
+        if (this.selected) {
+            stroke = "rgba(255, 255, 0, 1)";
+            this.view.context.lineWidth = 3;
+        }
+        else {
+            this.view.context.lineWidth = 1;
+        }
+        this.view.drawPolygon(this.points, fill);
+        this.view.drawPolyline(this.points, stroke, false);
+    }
+
+    select(x, y) {
+        if (this.isInside(this.points[0].x, this.points[0].y,
+                this.points[1].x, this.points[1].y,
+                this.points[2].x, this.points[2].y,
+                x, y) ||
+            this.isInside(this.points[2].x, this.points[2].y,
+                this.points[3].x, this.points[3].y,
+                this.points[0].x, this.points[0].y,
+                x, y)) {
+            this.selected = true;
+
+            var form = document.getElementById('fields');
+            var port = document.getElementById("port");
+            var aspect = document.getElementById("aspect");
+            var width = document.getElementById("width");
+            port.value = this.port;
+            aspect.value = this.aspect;
+            width.value = this.width;
+
+            form.hidden = false;
+        }
+        else {
+            this.selected = false;
+        }
+    }
+
+    area(x1, y1, x2, y2, x3, y3) {
+        return Math.abs((x1*(y2-y3) + x2*(y3-y1)+ x3*(y1-y2))/2.0);
+    };
+
+    isInside(x1, y1, x2, y2, x3, y3, x, y) {
+       var A = this.area(x1, y1, x2, y2, x3, y3);
+       var A1 = this.area(x, y, x2, y2, x3, y3);
+       var A2 = this.area(x1, y1, x, y, x3, y3);
+       var A3 = this.area(x1, y1, x2, y2, x, y);
+       return (Math.round(A) == Math.round(A1 + A2 + A3));
+    }
+
+};
 
 
 class canvasView {
@@ -79,6 +143,18 @@ class canvasView {
 
     if (event.button == 0) {
       this.isMove = true;
+      var x = (this.mouseX - this.x1) / this.scale;
+      var y = (this.mouseY - this.y1) / this.scale;
+
+      // selection
+      var form = document.getElementById('fields');
+      form.hidden = true;
+
+      for (var display of displays) {
+        display.select(x, y);
+      }
+
+      viewer.draw();
     }
     if (event.button == 2) {
       this.scale = this.w1 / this.image.width;
@@ -87,20 +163,15 @@ class canvasView {
 
       if (drawDisplay) {
           ps.push({"x": x, "y": y});
-          viewer.draw();
 
           if (ps.length == 4) {
             var btn = document.getElementById("create-display");
             btn.click();
-            polygons.push(ps);
+            displays.push(new Display(this, ps));
+            ps = [];
           }
-      }
-      else {
 
-        if (ps.length == 4) {
-            console.log(isInside(ps[0].x, ps[0].y, ps[1].x, ps[1].y, ps[2].x, ps[2].y, x, y));
-            console.log(isInside(ps[2].x, ps[2].y, ps[3].x, ps[3].y, ps[0].x, ps[0].y, x, y));
-        }
+          viewer.draw();
       }
     }
   }
@@ -164,8 +235,8 @@ class canvasView {
     this.mouseY = e.clientY - boundings.top;
   }
 
-  drawPolygon(psp) {
-    this.context.fillStyle = "rgba(0, 0, 255, 0.3)";
+  drawPolygon(psp, style) {
+    this.context.fillStyle = style;
     this.context.beginPath();
     var first = true;
 
@@ -187,23 +258,15 @@ class canvasView {
     this.context.fill();
   }
 
-  draw() {
-    this.scale = this.w1 / this.image.width;
-    var canvas = document.getElementById("paint-canvas");
-    var right = document.getElementById("right");
-    canvas.width = right.clientWidth;
-    canvas.height = right.clientHeight;
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.context.drawImage(this.image, this.x1, this.y1, this.w1, this.h1);
-
-
-    this.context.strokeStyle = "rgba(255, 255, 255, 0.7)";
+  drawPolyline(psp, style, opened=true) {
+    this.context.strokeStyle = style;
     this.context.beginPath();
     var first = true;
     var oldx, oldy;
+    var firstx, firsty;
 
     // draw temporally line
-    for (var p of ps) {
+    for (var p of psp) {
       // screen x y
       var x = this.x1 + p.x * this.scale;
       var y = this.y1 + p.y * this.scale;
@@ -215,19 +278,45 @@ class canvasView {
         this.context.closePath();
         this.context.stroke();
       }
+      else {
+        firstx = x;
+        firsty = y;
+      }
       first = false;
       oldx = x;
       oldy = y;
     }
-    if (! first && drawDisplay) {
+    if (! first && ! opened) {
+        this.context.beginPath();
+        this.context.moveTo(oldx, oldy);
+        this.context.lineTo(firstx, firsty);
+        this.context.closePath();
+        this.context.stroke();
+    }
+  }
+
+  draw() {
+    this.scale = this.w1 / this.image.width;
+    var canvas = document.getElementById("paint-canvas");
+    var right = document.getElementById("right");
+    canvas.width = right.clientWidth;
+    canvas.height = right.clientHeight;
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.context.drawImage(this.image, this.x1, this.y1, this.w1, this.h1);
+
+    this.drawPolyline(ps, "rgba(255, 255, 255, 0.7)");
+
+    if (ps.length > 0 && drawDisplay) {
+      var x = this.x1 + ps[ps.length - 1].x * this.scale;
+      var y = this.y1 + ps[ps.length - 1].y * this.scale;
       this.context.beginPath();
-      this.context.moveTo(oldx, oldy);
+      this.context.moveTo(x, y);
       this.context.lineTo(this.mouseX, this.mouseY);
       this.context.closePath();
       this.context.stroke();
     }
 
-    this.drawPolygon(ps);
+    this.drawPolygon(ps, "rgba(0, 0, 255, 0.3)");
 
     // draw temporally points
     this.context.fillStyle = "rgba(255, 0, 0, 0.5)";
@@ -240,6 +329,10 @@ class canvasView {
       var y = this.y1 + p.y * this.scale;
       this.context.fillRect(x - 5, y - 5, 11, 11);
       this.context.strokeRect(x, y, 1, 1);
+    }
+
+    for (var display of displays) {
+        display.draw();
     }
   }
 
@@ -287,26 +380,25 @@ window.onload = function () {
   }
 };
 
-function area(x1, y1, x2, y2, x3, y3) {
-   return Math.abs((x1*(y2-y3) + x2*(y3-y1)+ x3*(y1-y2))/2.0);
-};
 
-function isInside(x1, y1, x2, y2, x3, y3, x, y) {
-   var A = area (x1, y1, x2, y2, x3, y3);
-   var A1 = area (x, y, x2, y2, x3, y3);
-   var A2 = area (x1, y1, x, y, x3, y3);
-   var A3 = area (x1, y1, x2, y2, x, y);
-   console.log(Math.round(A), Math.round(A1+A2+A3));
-   return (Math.round(A) == Math.round(A1 + A2 + A3));
+
+function fillForm() {
+  var port = document.getElementById("port");
+  var aspect = document.getElementById("aspect");
+  var width = document.getElementById("width");
+
+  console.log("change: " + port.value + " " + aspect.value + " " + width.value);
+
+  for (var d of displays) {
+
+    if (d.selected) {
+        d.port = port.value;
+        d.aspect = aspect.value;
+        d.width = width.value;
+    }
+  }
 }
 
-
-
-
-function feelForm() {
-}
-
-feelForm();
 
     </script>
 
@@ -335,13 +427,13 @@ feelForm();
 
 
 
-            <form id="fields" hidden>
-               port: <br /><input type="text" name="port" value="5556"><br />
-               aspect: <br /><select name="aspect">
+            <form id="fields" hidden onchange="fillForm()">
+               port: <br /><input id="port" type="text" name="port" value="5556" oninput="fillForm()"><br />
+               aspect: <br /><select name="aspect" id="aspect">
                  <option selected>16:9</option>
                  <option>4:3</option>
                </select><br />
-               render width: <br /><input type="text" name="width" value="720"><br />
+               render width: <br /><input type="text" name="width" id="width" value="720" oninput="fillForm()"><br />
             </form>
 
          </div>

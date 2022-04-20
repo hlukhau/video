@@ -105,6 +105,16 @@ def add_project():
 
     return redirect('/')
 
+@app.route('/points', methods=['POST'])
+def points():
+    project = session['project']
+    points = request.get_json()
+    print(points)
+    with open('static/projects/' + project + '/displays.json', 'w') as outfile:
+        json.dump(points, outfile)
+    return "Ok"
+
+
 
 @app.route('/send', methods=['GET', 'POST'])
 def send_file():
@@ -198,7 +208,15 @@ def edit():
     project = session.get('project')
     path = request.args.get('path')
     print("edit: " + path)
-    return render_template('canvas-viewer.html', path=path, project=project)
+    points = '{}'
+
+    if (os.path.exists('static/projects/' + project + '/displays.json')):
+        print('static/projects/' + project + '/displays.json')
+        with open('static/projects/' + project + '/displays.json') as points_file:
+            points = json.load(points_file)
+
+    print(points)
+    return render_template('canvas-viewer.html', path=path, project=project, points=points)
 
 
 @app.route('/remove')

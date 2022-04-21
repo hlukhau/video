@@ -45,8 +45,9 @@ class Display {
     this.points = ps;
     this.selected = false;
     this.port = "5556";
-    this.aspect = "16:9";
+    this.height = "480";
     this.width = "720";
+    this.video = false;
   }
 
     draw() {
@@ -74,12 +75,15 @@ class Display {
                 x, y)) {
             this.selected = true;
 
+            var btnDelete = document.getElementById("delete-display");
+            btnDelete.disabled = false;
+
             var form = document.getElementById('fields');
             var port = document.getElementById("port");
-            var aspect = document.getElementById("aspect");
+            var height = document.getElementById("height");
             var width = document.getElementById("width");
             port.value = this.port;
-            aspect.value = this.aspect;
+            height.value = this.height;
             width.value = this.width;
 
             form.hidden = false;
@@ -149,6 +153,8 @@ class CanvasView {
       // selection
       var form = document.getElementById('fields');
       form.hidden = true;
+      var btnDelete = document.getElementById("delete-display");
+      btnDelete.disabled = true;
 
       for (var display of displays) {
         display.select(x, y);
@@ -373,6 +379,21 @@ window.onload = function () {
     }
   }
 
+  var btnDelete = document.getElementById("delete-display");
+  btnDelete.onclick=function(e) {
+    if (! drawDisplay) {
+
+        for (var i = 0; i < displays.length; i++) {
+            if (displays[i].selected) {
+                displays.splice(i, 1);
+                break;
+            }
+        }
+
+        viewer.draw();
+    }
+  }
+
 
   function loadContent(project) {
     var param = {"project": {{project}}};
@@ -418,7 +439,7 @@ window.onload = function () {
     {%endfor%}
     displays.push(new Display(ps));
     displays[displays.length - 1].port = {{p.port}};
-    displays[displays.length - 1].aspect = '{{p.aspect}}';
+    displays[displays.length - 1].height = '{{p.height}}';
     displays[displays.length - 1].width = {{p.width}};
     console.log(displays.length);
 
@@ -431,14 +452,14 @@ window.onload = function () {
 
 function fillForm() {
   var port = document.getElementById("port");
-  var aspect = document.getElementById("aspect");
+  var height = document.getElementById("height");
   var width = document.getElementById("width");
 
   for (var d of displays) {
 
     if (d.selected) {
         d.port = port.value;
-        d.aspect = aspect.value;
+        d.height = height.value;
         d.width = width.value;
     }
   }
@@ -456,7 +477,9 @@ function fillForm() {
 
 <div class="main">
          <div class="left">Menu<br />
-            <input id="create-display" type="button" value="+" style="border-style: outset;" />
+            <input id="create-display" type="button" value="add display" style="border-style: outset; width: 160px;" />
+            <br />
+            <input id="delete-display" type="button" value="del display" style="border-style: outset; width: 160px;" disabled/>
             <br />
             <br />
             Monitor corner selection order:
@@ -474,16 +497,15 @@ function fillForm() {
 
             <form id="fields" hidden onchange="fillForm()">
                port: <br /><input id="port" type="text" name="port" value="5556" oninput="fillForm()"><br />
-               aspect: <br /><select name="aspect" id="aspect">
-                 <option selected>16:9</option>
-                 <option>4:3</option>
-               </select><br />
+               height: <br /><input type="text" name="width" id="height" value="480" oninput="fillForm()"><br />
                render width: <br /><input type="text" name="width" id="width" value="720" oninput="fillForm()"><br />
             </form>
 
             <br />
             <br />
-            <input id="save" type="button" value="Save" style="border-style: inset;" />
+            <input id="save" type="button" value="Save and close" style="border-style: inset; width: 160px;" />
+                 <br />
+            <input id="exit" type="button" value="Close" style="border-style: inset; width: 160px;" onclick="location.href='/'"/>
          </div>
 
          <div class="right" id="right">

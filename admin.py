@@ -24,6 +24,7 @@ def index():
         if (os.path.exists('static/projects/' + project + '/video/small.jpg')):
             video = '/static/projects/' + project + '/video/small.jpg'
 
+
     with open('files/projects.json') as json_file:
         projects = json.load(json_file)
 
@@ -140,6 +141,7 @@ def send_file():
                 height = int(128 * height / width)
                 width = 128
                 resized = cv2.resize(image, (width, height))
+                cv2.imwrite("static/projects/" + project + "/video/original.jpg", image)  # save frame as JPEG file
                 cv2.imwrite("static/projects/" + project + "/video/small.jpg", resized)  # save frame as JPEG file
 
         time.sleep(1)
@@ -182,6 +184,8 @@ def delete():
 
     if (os.path.exists('static/projects/' + project + '/video/small.jpg')):
         os.remove("static/projects/" + project + "/video/small.jpg")
+    if (os.path.exists('static/projects/' + project + '/video/original.jpg')):
+        os.remove("static/projects/" + project + "/video/original.jpg")
     if (os.path.exists('static/projects/' + project + '/video/video.mp4')):
         os.remove("static/projects/" + project + "/video/video.mp4")
 
@@ -231,6 +235,8 @@ def remove():
     if path.find("video") != -1:
         if (os.path.exists('static/projects/' + project + '/video/small.jpg')):
             os.remove("static/projects/" + project + "/video/small.jpg")
+        if (os.path.exists('static/projects/' + project + '/video/original.jpg')):
+            os.remove("static/projects/" + project + "/video/original.jpg")
         if (os.path.exists('static/projects/' + project + '/video/video.mp4')):
             os.remove("static/projects/" + project + "/video/video.mp4")
 

@@ -24,12 +24,8 @@ body{
   flex-grow: 1;
   background-color: silver;
 }
-
-
-
-
-.
     </style>
+
 
     <script>
 
@@ -39,15 +35,17 @@ var ps = [];
 var displays = [];
 var drawDisplay = false;
 var viewer;
+var video = false;
+var videoImage;
 
 class Display {
-  constructor(ps) {
+  constructor(ps, video) {
     this.points = ps;
     this.selected = false;
     this.port = "5556";
     this.height = "480";
     this.width = "720";
-    this.video = false;
+    this.video = video;
   }
 
     draw() {
@@ -60,8 +58,17 @@ class Display {
         else {
             viewer.context.lineWidth = 1;
         }
-        viewer.drawPolygon(this.points, fill);
-        viewer.drawPolyline(this.points, stroke, false);
+
+        if (this.video) {
+            viewer.context.globalAlpha = 0.5;
+            viewer.drawImage(this.points);
+            viewer.context.globalAlpha = 1;
+            viewer.drawPolyline(this.points, stroke, false);
+        }
+        else {
+            viewer.drawPolygon(this.points, fill);
+            viewer.drawPolyline(this.points, stroke, false);
+        }
     }
 
     select(x, y) {
@@ -158,6 +165,10 @@ class CanvasView {
 
       for (var display of displays) {
         display.select(x, y);
+
+        if (display.selected) {
+            x = 1000000;
+        }
       }
 
       viewer.draw();
@@ -168,16 +179,38 @@ class CanvasView {
       var y = (this.mouseY - this.y1) / this.scale;
 
       if (drawDisplay) {
+
+        if (video) {
+          console.log("video");
+          if (ps.length == 0) {
+            ps.push({"x": x, "y": y});
+          }
+          else {
+            var btn = document.getElementById("create-video");
+            btn.click();
+            var v = new Display(ps, true)
+            v.width = videoImage.width;
+            v.height = videoImage.height;
+            v.port = "5000";
+            displays.push(v);
+            ps = [];
+          }
+
+          viewer.draw();
+        }
+        else {
+          console.log("not video");
           ps.push({"x": x, "y": y});
 
           if (ps.length == 4) {
             var btn = document.getElementById("create-display");
             btn.click();
-            displays.push(new Display(ps));
+            displays.push(new Display(ps, false));
             ps = [];
           }
 
           viewer.draw();
+        }
       }
     }
   }
@@ -239,6 +272,14 @@ class CanvasView {
     var boundings = this.canvas.getBoundingClientRect();
     this.mouseX = e.clientX - boundings.left;
     this.mouseY = e.clientY - boundings.top;
+  }
+
+  drawImage(psp) {
+      var x = this.x1 + psp[0].x * this.scale;
+      var y = this.y1 + psp[0].y * this.scale;
+      var w = this.x1 + psp[1].x * this.scale - x;
+      var h = this.y1 + psp[2].y * this.scale - y;
+      this.context.drawImage(videoImage, x, y, w, h);
   }
 
   drawPolygon(psp, style) {
@@ -310,35 +351,81 @@ class CanvasView {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.drawImage(this.image, this.x1, this.y1, this.w1, this.h1);
 
-    this.drawPolyline(ps, "rgba(255, 255, 255, 0.7)");
+    if (video) {
 
-    if (ps.length > 0 && drawDisplay) {
-      var x = this.x1 + ps[ps.length - 1].x * this.scale;
-      var y = this.y1 + ps[ps.length - 1].y * this.scale;
-      this.context.beginPath();
-      this.context.moveTo(x, y);
-      this.context.lineTo(this.mouseX, this.mouseY);
-      this.context.closePath();
-      this.context.stroke();
+        if (ps.length > 0) {
+            var x = (this.mouseX - this.x1) / this.scale;
+            var y = (this.mouseY - this.y1) / this.scale;
+            var im = document.getElementById("video");
+            var iw = im.width;
+            var ih = im.height;
+
+            var x1 = ps[0].x;
+            var y1 = ps[0].y;
+            var x2, x3, x4;
+            var y2, y3, y4;
+
+
+            if ((x - x1) / (y - y1) < iw / ih) {
+                var dy = (x - x1) * ih / iw;
+                x2 = x; x3 = x; x4 = x1;
+                y2 = y1; y3 = y1 + dy; y4 = y1 + dy;
+            }
+            else {
+                var dx = (y - y1) * iw / ih;
+                x2 = x1 + dx; x3 = x1 + dx; x4 = x1;
+                y2 = y1; y3 = y; y4 = y;
+            }
+
+            console.log(x1, y1, x2, y2, x3, y3, x4, y4);
+
+            ps = [];
+            ps.push({"x": x1, "y": y1});
+            ps.push({"x": x2, "y": y2});
+            ps.push({"x": x3, "y": y3});
+            ps.push({"x": x4, "y": y4});
+          }
+          this.drawPolygon(ps, "rgba(255, 0, 255, 0.3)");
+          this.drawPolyline(ps, "rgba(255, 255, 255, 0.7)", false);
     }
+    else {
+        this.drawPolyline(ps, "rgba(255, 255, 255, 0.7)");
 
-    this.drawPolygon(ps, "rgba(0, 0, 255, 0.3)");
+        if (ps.length > 0 && drawDisplay) {
+          var x = this.x1 + ps[ps.length - 1].x * this.scale;
+          var y = this.y1 + ps[ps.length - 1].y * this.scale;
+          this.context.beginPath();
+          this.context.moveTo(x, y);
+          this.context.lineTo(this.mouseX, this.mouseY);
+          this.context.closePath();
+          this.context.stroke();
+        }
 
-    // draw temporally points
-    this.context.fillStyle = "rgba(255, 0, 0, 0.5)";
-    this.context.strokeStyle = "rgba(255, 255, 255)";
+        this.drawPolygon(ps, "rgba(0, 0, 255, 0.3)");
 
-    for (var p of ps) {
+        // draw temporally points
+        this.context.fillStyle = "rgba(255, 0, 0, 0.5)";
+        this.context.strokeStyle = "rgba(255, 255, 255)";
 
-      // screen x y
-      var x = this.x1 + p.x * this.scale;
-      var y = this.y1 + p.y * this.scale;
-      this.context.fillRect(x - 5, y - 5, 11, 11);
-      this.context.strokeRect(x, y, 1, 1);
+        for (var p of ps) {
+
+          // screen x y
+          var x = this.x1 + p.x * this.scale;
+          var y = this.y1 + p.y * this.scale;
+          this.context.fillRect(x - 5, y - 5, 11, 11);
+          this.context.strokeRect(x, y, 1, 1);
+        }
     }
 
     for (var display of displays) {
-        display.draw();
+        if (display.video) {
+            display.draw();
+        }
+    }
+    for (var display of displays) {
+        if (! display.video) {
+            display.draw();
+        }
     }
   }
 };
@@ -361,6 +448,8 @@ window.onload = function () {
   canvas.width = right.clientWidth;
   canvas.height = right.clientHeight;
   viewer = new CanvasView(canvas, image);
+  videoImage = document.getElementById('video');
+
 
   var btn = document.getElementById("create-display");
   btn.onclick=function(e) {
@@ -369,6 +458,7 @@ window.onload = function () {
       this.style.borderStyle = 'inset';
       drawDisplay = true;
       ps = [];
+      video = false;
       viewer.draw();
     }
     else {
@@ -394,6 +484,23 @@ window.onload = function () {
     }
   }
 
+  var btnVideo = document.getElementById("create-video");
+  btnVideo.onclick=function(e) {
+    if (window.getComputedStyle(this).borderStyle != 'inset') {
+      this.style.backgroundColor = 'red';
+      this.style.borderStyle = 'inset';
+      drawDisplay = true;
+      ps = [];
+      video = true;
+      viewer.draw();
+    }
+    else {
+      this.style.backgroundColor = 'white';
+      this.style.borderStyle = 'outset';
+      drawDisplay = false;
+      viewer.draw();
+    }
+  }
 
   function loadContent(project) {
     var param = {"project": {{project}}};
@@ -437,7 +544,7 @@ window.onload = function () {
     {% for point in p.points %}
        ps.push({"x": {{point.x}}, "y": {{point.y}}});
     {%endfor%}
-    displays.push(new Display(ps));
+    displays.push(new Display(ps, '{{p.video}}'!='False'));
     displays[displays.length - 1].port = {{p.port}};
     displays[displays.length - 1].height = '{{p.height}}';
     displays[displays.length - 1].width = {{p.width}};
@@ -479,6 +586,8 @@ function fillForm() {
          <div class="left">Menu<br />
             <input id="create-display" type="button" value="add display" style="border-style: outset; width: 160px;" />
             <br />
+            <input id="create-video" type="button" value="video mapping" style="border-style: outset; width: 160px;" />
+            <br />
             <input id="delete-display" type="button" value="del display" style="border-style: outset; width: 160px;" disabled/>
             <br />
             <br />
@@ -497,8 +606,8 @@ function fillForm() {
 
             <form id="fields" hidden onchange="fillForm()">
                port: <br /><input id="port" type="text" name="port" value="5556" oninput="fillForm()"><br />
+               width: <br /><input type="text" name="width" id="width" value="720" oninput="fillForm()"><br />
                height: <br /><input type="text" name="width" id="height" value="480" oninput="fillForm()"><br />
-               render width: <br /><input type="text" name="width" id="width" value="720" oninput="fillForm()"><br />
             </form>
 
             <br />
@@ -511,6 +620,7 @@ function fillForm() {
          <div class="right" id="right">
             <canvas id=paint-canvas class="right"></canvas>
             <img id=source src={{path}} hidden />
+            <img id=video src='static/projects/{{project}}/video/original.jpg' hidden />
          </div>
 </div>
 

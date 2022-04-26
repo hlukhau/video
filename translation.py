@@ -3,7 +3,7 @@ import numpy as np
 import time
 import os
 import logging
-from multiprocessing import Process, current_process
+from multiprocessing import Process, Manager
 from pydub import AudioSegment
 from pydub.playback import play
 
@@ -13,14 +13,17 @@ import zmq
 
 logging.basicConfig(level=logging.ERROR)
 
-start_time = time.time()
 
-tape = AudioSegment.from_file('3.mp4', format='mp4')
-process = Process(target=play, args=(tape,))
+# tape = AudioSegment.from_file('3.mp4', format='mp4')
+# process = Process(target=play, args=(tape,))
 
+def video_player(displays, dict):
+    global audio_process
+    tape = AudioSegment.from_file('3.mp4', format='mp4')
+    audio_process = Process(target=play, args=(tape,))
+    audio_process.start()
 
-def video_player(displays):
-
+    start_time = time.time()
     before = {}
     after = {}
     M = {}
@@ -76,7 +79,7 @@ def video_player(displays):
 
     print(frame_width, frame_height)
 
-    while (True):
+    while (dict[1] == 1):
         ret, frame = cap.read()
 
         if ret == True:
@@ -125,8 +128,11 @@ def video_player(displays):
     # Closes all the frames
     cv2.destroyAllWindows()
 
-
-
+    # Audio closing
+    print("try to terminate audio process")
+    audio_process.terminate()
+    audio_process.kill()
+    print("after trying of audio process termination")
 
 
 if __name__ == '__main__':

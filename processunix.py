@@ -13,20 +13,23 @@ start_time = time.time()
 
 tape = AudioSegment.from_file('3.mp4', format='mp4')
 process = Process(target=play, args=(tape,))
+process.start()
 
 
-def video_player(name, frontCoverPtsAfter, frontCoverPtsBefore, width, height):
+def video_player(name):
     print(name)
     RED = (0, 0, 255)
-    # p0 = 49, 48
-    # p1 = 679, 236
-    # p2 = 647, 530
-    # p3 = 39, 681
-    #
-    # frontCoverPtsAfter = np.array([[0, 0], [1279, 0], [1279, 719], [0, 719]], dtype="float32")
-    #
-    # frontCoverPtsBefore = np.array([p0, p1, p2, p3], dtype="float32")
-    # print(frontCoverPtsBefore)
+    p0 = 49, 48
+    p1 = 679, 236
+    p2 = 647, 530
+    p3 = 39, 681
+    width = 1280
+    height = 720
+
+    frontCoverPtsAfter = np.array([[0, 0], [1279, 0], [1279, 719], [0, 719]], dtype="float32")
+
+    frontCoverPtsBefore = np.array([p0, p1, p2, p3], dtype="float32")
+    print(frontCoverPtsBefore)
     p0 = int(frontCoverPtsBefore[0][0]), int(frontCoverPtsBefore[0][1])
     p1 = int(frontCoverPtsBefore[1][0]), int(frontCoverPtsBefore[1][1])
     p2 = int(frontCoverPtsBefore[2][0]), int(frontCoverPtsBefore[2][1])
@@ -62,7 +65,7 @@ def video_player(name, frontCoverPtsAfter, frontCoverPtsBefore, width, height):
             frame2 = cv2.warpPerspective(frame, M_front, (width, height))
 
             # Display the resulting frame
-            #cv2.imshow('frame', frame)
+            cv2.imshow('frame', frame)
             cv2.imshow(name, frame2)
 
 
@@ -85,8 +88,7 @@ def video_player(name, frontCoverPtsAfter, frontCoverPtsBefore, width, height):
     # Closes all the frames
     cv2.destroyAllWindows()
 
-
-
+    process.terminate()
 
 
 if __name__ == '__main__':

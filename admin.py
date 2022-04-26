@@ -6,13 +6,22 @@ import glob
 import time
 import cv2
 import numpy as np
-from multiprocessing import Process, current_process
+from multiprocessing import Process, Manager
+
+from pydub import AudioSegment
+from pydub.playback import play
+# from ffpyplayer.player import MediaPlayer
 
 #from processunix import video_player
-from translation import video_player
+import translation as tr
 
 app = Flask(__name__)
 app.secret_key = "super secret key"
+
+manager = Manager()
+dict = manager.dict()
+dict[1] = 1
+
 
 @app.route('/')
 def index():
@@ -296,15 +305,22 @@ def start_video():
                 # proc1 = Process(target=video_player, args=('video:' + str(display['port']), frontCoverPtsAfter, frontCoverPtsBefore, int(width), int(height)))
                 # proc1.start()
 
+
         global proc1
-        proc1 = Process(target=video_player, args=(displays,)) #'video:' + str(display['port']), frontCoverPtsAfter, frontCoverPtsBefore, int(width), int(height)))
+        dict[1] = 1
+        proc1 = Process(target=tr.video_player, args=(displays, dict,)) #'video:' + str(display['port']), frontCoverPtsAfter, frontCoverPtsBefore, int(width), int(height)))
         proc1.start()
+
+
+        # global player
+        # player = MediaPlayer('3.a.mp4')
 
     return "Ok"
 
 @app.route('/stop-video')
 def stop_video():
-    proc1.terminate()
+    # proc1.terminate()
+    dict[1] = 0
     return "Ok"
 
 

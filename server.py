@@ -21,11 +21,6 @@ h = int(camera.get(4) / 2)
 
 print(w, h)
 
-def sigint_handler(signal, frame):
-    print ('KeyboardInterrupt is caught')
-    sys.exit(0)
-signal.signal(signal.SIGINT, sigint_handler)
-
 while True:
     grabbed, frame = camera.read()  # grab the current frame
     frame = cv2.resize(frame, (w, h))  # resize the frame

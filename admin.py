@@ -8,7 +8,8 @@ import cv2
 import numpy as np
 from multiprocessing import Process, current_process
 
-from processunix import video_player
+#from processunix import video_player
+from translation import video_player
 
 app = Flask(__name__)
 app.secret_key = "super secret key"
@@ -262,50 +263,48 @@ def start_video():
     if (os.path.exists('static/projects/' + project + '/displays.json')):
         print('static/projects/' + project + '/displays.json')
         with open('static/projects/' + project + '/displays.json') as points_file:
-            points = json.load(points_file)
+            displays = json.load(points_file)
 
-            for display in points:
-                if display['video'] == True:
-                    print("VIDEO")
+        for display in displays:
 
-                    x1 = display['points'][0]['x']
-                    x2 = display['points'][1]['x']
-                    y1 = display['points'][0]['y']
-                    y2 = display['points'][2]['y']
+            if display['video'] == True:
+                x1 = display['points'][0]['x']
+                x2 = display['points'][1]['x']
+                y1 = display['points'][0]['y']
+                y2 = display['points'][2]['y']
+                w = x2 - x1
+                h = y2 - y1
 
-                    print(display['points'][0]['x'])
-                    print(display['points'][1]['x'])
-                    print(display['points'][0]['y'])
-                    print(display['points'][2]['y'])
+        for display in displays:
+            width = float(display['width'])
+            height = float(display['height'])
 
-                    w = x2 - x1
-                    h = y2 - y1
+            ps = []
 
-            for display in points:
+            for point in display['points']:
+                ox = float(point['x'])
+                oy = float(point['y'])
+                x = (ox - x1) * width / w;
+                y = (oy - y1) * height / h;
+                ps.append([x, y])
 
-                width = float(display['width'])
-                height = float(display['height'])
-
-                ps = []
-
-                for point in display['points']:
-                    ox = float(point['x'])
-                    oy = float(point['y'])
-                    x = (ox - x1) * width / w;
-                    y = (oy - y1) * height / h;
-                    ps.append([x, y])
-
-                frontCoverPtsAfter = np.array([[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]], dtype="float32")
+            if display['video'] != True:
                 frontCoverPtsBefore = np.array(ps, dtype="float32")
+                frontCoverPtsAfter = np.array([[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]],
+                                              dtype="float32")
 
-                if display['video'] != True:
-                    print(frontCoverPtsBefore)
-                    print(frontCoverPtsAfter)
+                # proc1 = Process(target=video_player, args=('video:' + str(display['port']), frontCoverPtsAfter, frontCoverPtsBefore, int(width), int(height)))
+                # proc1.start()
 
-                    proc1 = Process(target=video_player, args=('video:' + str(display['port']), frontCoverPtsAfter, frontCoverPtsBefore, int(width), int(height)))
-                    proc1.start()
+        global proc1
+        proc1 = Process(target=video_player, args=(displays,)) #'video:' + str(display['port']), frontCoverPtsAfter, frontCoverPtsBefore, int(width), int(height)))
+        proc1.start()
 
     return "Ok"
+
+@app.route('/stop-video')
+def stop_video():
+    proc1.terminate()
 
 
 if __name__ == '__main__':

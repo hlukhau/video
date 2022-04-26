@@ -45,6 +45,7 @@ def video_player(name, frontCoverPtsAfter, frontCoverPtsBefore, width, height):
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
 
+    print(M_front, width, height)
 
     print(frame_width, frame_height)
 

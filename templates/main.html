@@ -125,16 +125,22 @@ function start(project) {
     if (btn.innerText == "Start stream") {
         span.innerText = "try start progress";
         btn.innerText = "Stop stream";
+
+        var xhr = new XMLHttpRequest()
+        xhr.open('GET', '/start-video', true)
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
+        xhr.send()
     }
     else {
         span.innerText = "progress";
         btn.innerText = "Start stream";
+
+        var xhr = new XMLHttpRequest()
+        xhr.open('GET', '/stop-video', true)
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
+        xhr.send()
     }
 
-  var xhr = new XMLHttpRequest()
-  xhr.open('GET', '/start-video', true)
-  xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
-  xhr.send()
 }
 
 

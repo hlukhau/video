@@ -305,6 +305,7 @@ def start_video():
 @app.route('/stop-video')
 def stop_video():
     proc1.terminate()
+    return "Ok"
 
 
 if __name__ == '__main__':

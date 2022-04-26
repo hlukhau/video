@@ -7,6 +7,10 @@ from multiprocessing import Process, current_process
 from pydub import AudioSegment
 from pydub.playback import play
 
+import base64
+import cv2
+import zmq
+
 logging.basicConfig(level=logging.ERROR)
 
 start_time = time.time()

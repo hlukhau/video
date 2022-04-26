@@ -4,6 +4,11 @@ import os
 import json
 import glob
 import time
+import cv2
+import numpy as np
+from multiprocessing import Process, current_process
+
+from processunix import video_player
 
 app = Flask(__name__)
 app.secret_key = "super secret key"
@@ -247,6 +252,60 @@ def remove():
 def exit():
     session.pop('project', None)
     return redirect('/')
+
+
+@app.route('/start-video')
+def start_video():
+    project = session.get('project')
+    print('start video ' + project)
+
+    if (os.path.exists('static/projects/' + project + '/displays.json')):
+        print('static/projects/' + project + '/displays.json')
+        with open('static/projects/' + project + '/displays.json') as points_file:
+            points = json.load(points_file)
+
+            for display in points:
+                if display['video'] == True:
+                    print("VIDEO")
+
+                    x1 = display['points'][0]['x']
+                    x2 = display['points'][1]['x']
+                    y1 = display['points'][0]['y']
+                    y2 = display['points'][2]['y']
+
+                    print(display['points'][0]['x'])
+                    print(display['points'][1]['x'])
+                    print(display['points'][0]['y'])
+                    print(display['points'][2]['y'])
+
+                    w = x2 - x1
+                    h = y2 - y1
+
+            for display in points:
+
+                width = float(display['width'])
+                height = float(display['height'])
+
+                ps = []
+
+                for point in display['points']:
+                    ox = float(point['x'])
+                    oy = float(point['y'])
+                    x = (ox - x1) * width / w;
+                    y = (oy - y1) * height / h;
+                    ps.append([x, y])
+
+                frontCoverPtsAfter = np.array([[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]], dtype="float32")
+                frontCoverPtsBefore = np.array(ps, dtype="float32")
+
+                if display['video'] != True:
+                    print(frontCoverPtsBefore)
+                    print(frontCoverPtsAfter)
+
+                    proc1 = Process(target=video_player, args=('video:' + str(display['port']), frontCoverPtsAfter, frontCoverPtsBefore, int(width), int(height)))
+                    proc1.start()
+
+    return "Ok"
 
 
 if __name__ == '__main__':

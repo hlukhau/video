@@ -15,20 +15,25 @@ tape = AudioSegment.from_file('3.mp4', format='mp4')
 process = Process(target=play, args=(tape,))
 
 
-def video_player(name):
+def video_player(name, frontCoverPtsAfter, frontCoverPtsBefore, width, height):
     print(name)
-    p0 = 49, 48
-    p1 = 679, 236
-    p2 = 647, 530
-    p3 = 39, 681
-
-    frontCoverPtsAfter = np.array([[0, 0], [1279, 0], [1279, 719], [0, 719]], dtype="float32")
     RED = (0, 0, 255)
+    # p0 = 49, 48
+    # p1 = 679, 236
+    # p2 = 647, 530
+    # p3 = 39, 681
+    #
+    # frontCoverPtsAfter = np.array([[0, 0], [1279, 0], [1279, 719], [0, 719]], dtype="float32")
+    #
+    # frontCoverPtsBefore = np.array([p0, p1, p2, p3], dtype="float32")
+    # print(frontCoverPtsBefore)
+    p0 = int(frontCoverPtsBefore[0][0]), int(frontCoverPtsBefore[0][1])
+    p1 = int(frontCoverPtsBefore[1][0]), int(frontCoverPtsBefore[1][1])
+    p2 = int(frontCoverPtsBefore[2][0]), int(frontCoverPtsBefore[2][1])
+    p3 = int(frontCoverPtsBefore[3][0]), int(frontCoverPtsBefore[3][1])
 
-    points = np.array([p0, p1, p2, p3])
-    frontCoverPtsBefore = np.float32(points[np.newaxis])
-    print(points)
-    print(frontCoverPtsBefore)
+    print(p0, p1, p2, p3)
+
     M_front = cv2.getPerspectiveTransform(frontCoverPtsBefore, frontCoverPtsAfter)
 
     # Create a VideoCapture object
@@ -53,11 +58,11 @@ def video_player(name):
             frame = cv2.line(frame, p2, p3, RED, 3)
             frame = cv2.line(frame, p3, p0, RED, 3)
 
-            frame2 = cv2.warpPerspective(frame, M_front, (1280, 720))
+            frame2 = cv2.warpPerspective(frame, M_front, (width, height))
 
             # Display the resulting frame
-            cv2.imshow('frame', frame)
-            cv2.imshow('frame2', frame2)
+            #cv2.imshow('frame', frame)
+            cv2.imshow(name, frame2)
 
 
             # Press Q on keyboard to stop recording

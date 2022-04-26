@@ -118,6 +118,26 @@ function perform(url, project) {
   })
 }
 
+function start(project) {
+    var btn = document.getElementById("start");
+    var span = document.getElementById("progress");
+
+    if (btn.innerText == "Start stream") {
+        span.innerText = "try start progress";
+        btn.innerText = "Stop stream";
+    }
+    else {
+        span.innerText = "progress";
+        btn.innerText = "Start stream";
+    }
+
+  var xhr = new XMLHttpRequest()
+  xhr.open('GET', '/start-video', true)
+  xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
+  xhr.send()
+}
+
+
 loadContent('{{project}}')
     </script>
 </html>

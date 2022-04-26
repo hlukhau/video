@@ -6,6 +6,8 @@ import logging
 from multiprocessing import Process, Manager
 from pydub import AudioSegment
 from pydub.playback import play
+import simpleaudio
+from pydub.playback import _play_with_simpleaudio
 
 import base64
 import cv2
@@ -14,14 +16,11 @@ import zmq
 logging.basicConfig(level=logging.ERROR)
 
 
-# tape = AudioSegment.from_file('3.mp4', format='mp4')
 # process = Process(target=play, args=(tape,))
 
 def video_player(displays, dict):
-    global audio_process
     tape = AudioSegment.from_file('3.mp4', format='mp4')
-    audio_process = Process(target=play, args=(tape,))
-    audio_process.start()
+    playback = _play_with_simpleaudio(tape)
 
     start_time = time.time()
     before = {}
@@ -130,8 +129,7 @@ def video_player(displays, dict):
 
     # Audio closing
     print("try to terminate audio process")
-    audio_process.terminate()
-    audio_process.kill()
+    playback.stop()
     print("after trying of audio process termination")
 
 

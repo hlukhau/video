@@ -18,10 +18,6 @@ import translation as tr
 app = Flask(__name__)
 app.secret_key = "super secret key"
 
-manager = Manager()
-dict = manager.dict()
-dict[1] = 1
-
 
 @app.route('/')
 def index():
@@ -305,6 +301,9 @@ def start_video():
                 # proc1 = Process(target=video_player, args=('video:' + str(display['port']), frontCoverPtsAfter, frontCoverPtsBefore, int(width), int(height)))
                 # proc1.start()
 
+        manager = Manager()
+        dict = manager.dict()
+        dict[1] = 1
 
         global proc1
         dict[1] = 1
@@ -320,6 +319,8 @@ def start_video():
 @app.route('/stop-video')
 def stop_video():
     # proc1.terminate()
+    manager = Manager()
+    dict = manager.dict()
     dict[1] = 0
     return "Ok"
 

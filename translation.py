@@ -4,9 +4,14 @@ import time
 import os
 import logging
 from multiprocessing import Process, Manager
+# from pydub.playback import play
+# import simpleaudio
+
+import sys
+is_windows = hasattr(sys, 'getwindowsversion')
+from ffpyplayer.player import MediaPlayer
+
 from pydub import AudioSegment
-from pydub.playback import play
-import simpleaudio
 from pydub.playback import _play_with_simpleaudio
 
 import base64
@@ -19,8 +24,8 @@ logging.basicConfig(level=logging.ERROR)
 # process = Process(target=play, args=(tape,))
 
 def video_player(displays, dict):
-    tape = AudioSegment.from_file('3.mp4', format='mp4')
-    playback = _play_with_simpleaudio(tape)
+    # tape = AudioSegment.from_file('3.mp4', format='mp4')
+    # playback = _play_with_simpleaudio(tape)
 
     start_time = time.time()
     before = {}
@@ -129,7 +134,7 @@ def video_player(displays, dict):
 
     # Audio closing
     print("try to terminate audio process")
-    playback.stop()
+    # playback.stop()
     print("after trying of audio process termination")
 
 

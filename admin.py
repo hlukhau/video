@@ -6,7 +6,7 @@ import glob
 import time
 import cv2
 import numpy as np
-from multiprocessing import Process, Manager
+from multiprocessing import Process, Value
 
 from pydub import AudioSegment
 from pydub.playback import play
@@ -17,6 +17,7 @@ import translation as tr
 
 app = Flask(__name__)
 app.secret_key = "super secret key"
+run = Value('d', 1.0)
 
 
 @app.route('/')
@@ -301,13 +302,9 @@ def start_video():
                 # proc1 = Process(target=video_player, args=('video:' + str(display['port']), frontCoverPtsAfter, frontCoverPtsBefore, int(width), int(height)))
                 # proc1.start()
 
-        manager = Manager()
-        dict = manager.dict()
-        dict[1] = 1
-
         global proc1
-        dict[1] = 1
-        proc1 = Process(target=tr.video_player, args=(displays, dict,)) #'video:' + str(display['port']), frontCoverPtsAfter, frontCoverPtsBefore, int(width), int(height)))
+        proc1 = Process(target=tr.video_player, args=(displays, run,)) #'video:' + str(display['port']), frontCoverPtsAfter, frontCoverPtsBefore, int(width), int(height)))
+        run.value = 1.0
         proc1.start()
 
 
@@ -319,9 +316,7 @@ def start_video():
 @app.route('/stop-video')
 def stop_video():
     # proc1.terminate()
-    manager = Manager()
-    dict = manager.dict()
-    dict[1] = 0
+    run.value = 0.0
     return "Ok"
 
 

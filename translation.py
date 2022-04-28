@@ -3,13 +3,11 @@ import numpy as np
 import time
 import os
 import logging
-from multiprocessing import Process, Manager
+from multiprocessing import Process, Value
 # from pydub.playback import play
 # import simpleaudio
 
-import sys
-is_windows = hasattr(sys, 'getwindowsversion')
-from ffpyplayer.player import MediaPlayer
+# from ffpyplayer.player import MediaPlayer
 
 from pydub import AudioSegment
 from pydub.playback import _play_with_simpleaudio
@@ -18,12 +16,12 @@ import base64
 import cv2
 import zmq
 
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.INFO)
 
 
 # process = Process(target=play, args=(tape,))
 
-def video_player(displays, dict):
+def video_player(displays, run):
     # tape = AudioSegment.from_file('3.mp4', format='mp4')
     # playback = _play_with_simpleaudio(tape)
 
@@ -83,14 +81,19 @@ def video_player(displays, dict):
 
     print(frame_width, frame_height)
 
-    while (dict[1] == 1):
+    while (run.value == 1.0):
+
         ret, frame = cap.read()
+        print("cap.read = " + str(ret))
+
 
         if ret == True:
 
             for display in displays:
                 if display['video'] != True:
+                    print("client")
                     port = display['port']
+                    print("port" + str(port))
                     frontCoverPtsBefore = before[port]
                     frontCoverPtsAfter = after[port]
                     M_front = cv2.getPerspectiveTransform(frontCoverPtsBefore, frontCoverPtsAfter)
@@ -109,7 +112,9 @@ def video_player(displays, dict):
                     frame2 = cv2.warpPerspective(frame, M_front, (width, height))
 
                     # Display the resulting frame
+                    print("port, " + str(width) + " " + str(height))
                     cv2.imshow(str(port), frame2)
+                    print("after imshow")
 
             cv2.imshow('frame', frame)
 
@@ -136,6 +141,7 @@ def video_player(displays, dict):
     print("try to terminate audio process")
     # playback.stop()
     print("after trying of audio process termination")
+
 
 
 if __name__ == '__main__':

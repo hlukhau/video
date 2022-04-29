@@ -46,6 +46,7 @@ class Display {
     this.height = "480";
     this.width = "720";
     this.video = video;
+    this.pointSelected = null;
   }
 
     draw() {
@@ -69,9 +70,41 @@ class Display {
             viewer.drawPolygon(this.points, fill);
             viewer.drawPolyline(this.points, stroke, false);
         }
+
+        if (this.selected) {
+
+            for (var point of this.points) {
+
+                if (this.pointSelected == point) {
+                    stroke = "rgba(255, 0, 0, 1)";
+                    viewer.context.lineWidth = 2;
+                }
+                else {
+                    stroke = "rgba(255, 255, 0, 1)";
+                    viewer.context.lineWidth = 2;
+                }
+                var ps = [];
+                var size = 5 / viewer.scale;
+                ps.push({"x": point.x - size, "y": point.y - size});
+                ps.push({"x": point.x + size, "y": point.y - size});
+                ps.push({"x": point.x + size, "y": point.y + size});
+                ps.push({"x": point.x - size, "y": point.y + size});
+                viewer.drawPolyline(ps, stroke, false);
+            }
+        }
     }
 
     select(x, y) {
+        this.pointSelected = null;
+        var size = 5 / viewer.scale;
+
+        for (var point of this.points) {
+
+            if (Math.abs(x - point.x) < size && Math.abs(y - point.y) < size) {
+                this.pointSelected = point;
+            }
+        }
+
         if (this.isInside(this.points[0].x, this.points[0].y,
                 this.points[1].x, this.points[1].y,
                 this.points[2].x, this.points[2].y,
@@ -79,7 +112,8 @@ class Display {
             this.isInside(this.points[2].x, this.points[2].y,
                 this.points[3].x, this.points[3].y,
                 this.points[0].x, this.points[0].y,
-                x, y)) {
+                x, y) || this.pointSelected != null) {
+
             this.selected = true;
 
             var btnDelete = document.getElementById("delete-display");
@@ -113,9 +147,16 @@ class Display {
     }
 
     move(dx, dy) {
-      for (var point of this.points) {
-        point.x += dx;
-        point.y += dy;
+
+      if (this.pointSelected != null) {
+        this.pointSelected.x += dx;
+        this.pointSelected.y += dy;
+      }
+      else {
+          for (var point of this.points) {
+            point.x += dx;
+            point.y += dy;
+          }
       }
     }
 

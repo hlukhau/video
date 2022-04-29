@@ -37,7 +37,7 @@ logging.basicConfig(level=logging.INFO)
 def video_player(displays, run, project):
 
     video_file = "static/projects/" + project + "/video/video.mp4"
-    print(video_file)
+    # print(video_file)
 
     if (isUnix):
         tape = AudioSegment.from_file(video_file, format='mp4')
@@ -59,7 +59,7 @@ def video_player(displays, run, project):
             y2 = display['points'][2]['y']
             w = x2 - x1
             h = y2 - y1
-            print('video w=' + str(w) + ' h=' + str(h))
+            # print('video w=' + str(w) + ' h=' + str(h))
             video_width = float(display['width'])
             video_height = float(display['height'])
 
@@ -77,7 +77,7 @@ def video_player(displays, run, project):
                 y = (oy - y1) * video_height / h;
                 ps.append([x, y])
 
-            print(width, w)
+            # print(width, w)
 
             frontCoverPtsBefore = np.array(ps, dtype="float32")
             frontCoverPtsAfter = np.array([[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]], dtype="float32")

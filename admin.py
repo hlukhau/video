@@ -1,8 +1,6 @@
 from flask import Flask, render_template, request, session, redirect
-import cv2
 import os
 import json
-import glob
 import time
 import cv2
 import numpy as np
@@ -18,6 +16,14 @@ import translation as tr
 app = Flask(__name__)
 app.secret_key = "super secret key"
 run = Value('d', 1.0)
+
+path = os.getcwd()
+
+if (path.find(':') > 0):
+    print('Windows OS detected!')
+else:
+    print('UNIX detected!')
+
 
 
 @app.route('/')

@@ -6,23 +6,13 @@ import cv2
 import numpy as np
 from multiprocessing import Process, Value
 
-from pydub import AudioSegment
-from pydub.playback import play
 # from ffpyplayer.player import MediaPlayer
 
-#from processunix import video_player
 import translation as tr
 
 app = Flask(__name__)
 app.secret_key = "super secret key"
 run = Value('d', 1.0)
-
-path = os.getcwd()
-
-if (path.find(':') > 0):
-    print('Windows OS detected!')
-else:
-    print('UNIX detected!')
 
 
 

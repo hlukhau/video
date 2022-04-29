@@ -5,13 +5,23 @@ import os
 import logging
 from multiprocessing import Process, Value
 
+path = os.getcwd()
+isUnix = False
+
+if (path.find(':') > 0):
+    print('Windows OS detected!')
+
+else:
+    isUnix = True
+    print('UNIX detected!')
+    from pydub import AudioSegment
+    from pydub.playback import play
 
 
 # from pydub.playback import play
 # import simpleaudio
 
 # from ffpyplayer.player import MediaPlayer
-
 from pydub import AudioSegment
 from pydub.playback import _play_with_simpleaudio
 
@@ -25,8 +35,10 @@ logging.basicConfig(level=logging.INFO)
 # process = Process(target=play, args=(tape,))
 
 def video_player(displays, run):
-    # tape = AudioSegment.from_file('3.mp4', format='mp4')
-    # playback = _play_with_simpleaudio(tape)
+
+    if (isUnix):
+        tape = AudioSegment.from_file('3.mp4', format='mp4')
+        playback = _play_with_simpleaudio(tape)
 
     start_time = time.time()
     before = {}

@@ -41,6 +41,9 @@ def video_player(displays, run):
             y2 = display['points'][2]['y']
             w = x2 - x1
             h = y2 - y1
+            print('video w=' + str(w) + ' h=' + str(h))
+            video_width = float(display['width'])
+            video_height = float(display['height'])
 
     for display in displays:
         if display['video'] != True:
@@ -52,8 +55,8 @@ def video_player(displays, run):
             for point in display['points']:
                 ox = float(point['x'])
                 oy = float(point['y'])
-                x = (ox - x1) * w / width;
-                y = (oy - y1) * h / height;
+                x = (ox - x1) * video_width / w;
+                y = (oy - y1) * video_height / h;
                 ps.append([x, y])
 
             print(width, w)
@@ -79,21 +82,21 @@ def video_player(displays, run):
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
 
-    print(frame_width, frame_height)
+    # print(frame_width, frame_height)
 
     while (run.value == 1.0):
 
         ret, frame = cap.read()
-        print("cap.read = " + str(ret))
+        # print("cap.read = " + str(ret))
 
 
         if ret == True:
 
             for display in displays:
                 if display['video'] != True:
-                    print("client")
+                    # print("client")
                     port = display['port']
-                    print("port" + str(port))
+                    # print("port" + str(port))
                     frontCoverPtsBefore = before[port]
                     frontCoverPtsAfter = after[port]
                     M_front = cv2.getPerspectiveTransform(frontCoverPtsBefore, frontCoverPtsAfter)
@@ -112,9 +115,9 @@ def video_player(displays, run):
                     frame2 = cv2.warpPerspective(frame, M_front, (width, height))
 
                     # Display the resulting frame
-                    print("port, " + str(width) + " " + str(height))
+                    # print("port, " + str(width) + " " + str(height))
                     cv2.imshow(str(port), frame2)
-                    print("after imshow")
+                    # print("after imshow")
 
             cv2.imshow('frame', frame)
 

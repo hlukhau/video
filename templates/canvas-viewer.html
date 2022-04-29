@@ -112,6 +112,13 @@ class Display {
        return (Math.round(A) == Math.round(A1 + A2 + A3));
     }
 
+    move(dx, dy) {
+      for (var point of this.points) {
+        point.x += dx;
+        point.y += dy;
+      }
+    }
+
 };
 
 
@@ -126,6 +133,7 @@ class CanvasView {
     this.image = source;
     this.canvas.oncontextmenu = function(e) { e.preventDefault(); e.stopPropagation(); return false;}
     this.isMove = false;
+    this.isDisplayMove = false;
     this.x1 = 0;
     this.y1 = 0;
     this.w1 = this.image.width;
@@ -142,6 +150,7 @@ class CanvasView {
 
     this.x1 = -(this.image.width - this.canvas.width) / 2;
     this.y1 = -(this.image.height - this.canvas.height) / 2;
+    this.selected = null;
 
     this.draw();
   } 
@@ -212,6 +221,28 @@ class CanvasView {
           viewer.draw();
         }
       }
+
+      // start to move selected display
+      else {
+          console.log("start to move");
+          this.selected = null;
+
+          for (var display of displays) {
+            display.select(x, y);
+
+            if (display.selected) {
+                x = 1000000;
+                this.selected = display;
+            }
+          }
+
+          if (this.selected != null) {
+            console.log("selected found");
+            this.isDisplayMove = true;
+            this.oldx = this.mouseX;
+            this.oldy = this.mouseY;
+          }
+      }
     }
   }
 
@@ -230,6 +261,16 @@ class CanvasView {
       this.oldx = this.mouseX;
       this.oldy = this.mouseY;
     }
+    if (this.isDisplayMove) {
+      let dx = (this.mouseX - this.oldx) / this.scale;
+      let dy = (this.mouseY - this.oldy) / this.scale;
+
+      this.selected.move(dx, dy);
+
+      this.oldx = this.mouseX;
+      this.oldy = this.mouseY;
+      this.draw();
+    }
 
     if (drawDisplay) {
       this.draw();
@@ -240,6 +281,7 @@ class CanvasView {
     this.mouse(event);
 
     this.isMove = false;
+    this.isDisplayMove = false;
   }
 
   wheellistener(e) {

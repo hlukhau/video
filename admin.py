@@ -299,7 +299,7 @@ def start_video():
                 # proc1.start()
 
         global proc1
-        proc1 = Process(target=tr.video_player, args=(displays, run,)) #'video:' + str(display['port']), frontCoverPtsAfter, frontCoverPtsBefore, int(width), int(height)))
+        proc1 = Process(target=tr.video_player, args=(displays, run, project, )) #'video:' + str(display['port']), frontCoverPtsAfter, frontCoverPtsBefore, int(width), int(height)))
         run.value = 1.0
         proc1.start()
 

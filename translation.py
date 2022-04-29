@@ -34,10 +34,13 @@ logging.basicConfig(level=logging.INFO)
 
 # process = Process(target=play, args=(tape,))
 
-def video_player(displays, run):
+def video_player(displays, run, project):
+
+    video_file = "static/projects/" + project + "/video/video.mp4"
+    print(video_file)
 
     if (isUnix):
-        tape = AudioSegment.from_file('3.mp4', format='mp4')
+        tape = AudioSegment.from_file(video_file, format='mp4')
         playback = _play_with_simpleaudio(tape)
 
     start_time = time.time()
@@ -89,7 +92,7 @@ def video_player(displays, run):
     RED = (0, 0, 255)
 
     # Create a VideoCapture object
-    cap = cv2.VideoCapture('3.mp4')
+    cap = cv2.VideoCapture(video_file)
 
     if (cap.isOpened() == False):
         print("Unable to read camera feed")

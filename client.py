@@ -30,8 +30,8 @@ while True:
         img = base64.b64decode(frame)
         npimg = np.frombuffer(img, dtype=np.uint8)
         source = cv2.imdecode(npimg, 1)
-        # cv2.namedWindow("Stream", cv2.WND_PROP_FULLSCREEN)
-        # cv2.setWindowProperty("Stream", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_AUTOSIZE)
+        cv2.namedWindow("Stream", cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty("Stream", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_AUTOSIZE)
         cv2.imshow("Stream", source)
 
     except:

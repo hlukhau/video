@@ -8,7 +8,7 @@ from ffpyplayer.player import MediaPlayer
 from pydub import AudioSegment
 from pydub.playback import play
 
-#player = MediaPlayer('3.mp4')
+# player = MediaPlayer('3.mp4')
 start_time = time.time()
 
 
@@ -82,7 +82,7 @@ def video_player(name):
 if __name__ == '__main__':
     proc1 = Process(target=video_player, args=('video',))
     proc1.start()
-    player = MediaPlayer('3.mp4')
+    # player = MediaPlayer('3.mp4')
     proc1.join()
-    player.close_player()
+    # player.close_player()
 

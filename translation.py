@@ -12,18 +12,23 @@ isUnix = False
 
 if (path.find(':') > 0):
     print('Windows OS detected!')
-
+    from moviepy.editor import *
+    from ffpyplayer.player import MediaPlayer
 else:
     isUnix = True
     print('UNIX detected!')
-    from pydub import AudioSegment
-    from pydub.playback import play
 
 
 # from pydub.playback import play
 # import simpleaudio
+def mp4tomp3(mp4file,mp3file):
+    videoclip=VideoFileClip(mp4file)
+    audioclip=videoclip.audio
+    audioclip.write_audiofile(mp3file)
+    audioclip.close()
+    videoclip.close()
 
-# from ffpyplayer.player import MediaPlayer
+
 from pydub import AudioSegment
 from pydub.playback import _play_with_simpleaudio
 
@@ -31,16 +36,19 @@ from pydub.playback import _play_with_simpleaudio
 logging.basicConfig(level=logging.INFO)
 
 
-# process = Process(target=play, args=(tape,))
-
 def video_player(displays, run, project):
 
     video_file = "static/projects/" + project + "/video/video.mp4"
     # print(video_file)
 
-    if (isUnix):
+    if isUnix:
         tape = AudioSegment.from_file(video_file, format='mp4')
         playback = _play_with_simpleaudio(tape)
+    else:
+        video_file = path + "\\static\\projects\\" + project + "\\video\\video.mp4"
+        audio_file = path + "\\static\\projects\\" + project + "\\video\\video.mp3"
+        mp4tomp3(video_file, audio_file)
+        player = MediaPlayer(audio_file)
 
     before = {}
     after = {}
@@ -115,6 +123,11 @@ def video_player(displays, run, project):
     fps = cap.get(cv2.CAP_PROP_FPS)
     interval = int(1000 / fps)
 
+    fontScale = 1
+    color = (255, 255, 255)
+    thickness = 2
+    font = cv2.FONT_HERSHEY_SIMPLEX
+
     while (run.value == 1.0):
 
         ret, frame = cap.read()
@@ -145,10 +158,6 @@ def video_player(displays, run, project):
 
                     frame2 = cv2.warpPerspective(frame, M_front, (width, height))
 
-                    fontScale = 1
-                    color = (255, 255, 255)
-                    thickness = 2
-                    font = cv2.FONT_HERSHEY_SIMPLEX
                     frame2 = cv2.putText(frame2, 'E: ' + str(round(elapsed)) + ' P: ' + str(round(play_time)) + ' S:' + str(round(sleep)), (10, 30), font,
                                         fontScale, color, thickness, cv2.LINE_AA)
 
@@ -160,14 +169,21 @@ def video_player(displays, run, project):
                     # cv2.imshow(str(port), frame2)
                     # print("after imshow")
 
-            cv2.imshow('frame', frame)
+            # frame = cv2.putText(frame, 'E: ' + str(round(elapsed)) + ' P: ' + str(round(play_time)) + ' S:' + str(
+            #     round(sleep)), (10, 30), font,
+            #                      fontScale, color, thickness, cv2.LINE_AA)
+
+            # cv2.imshow('frame', frame)
 
             # Press Q on keyboard to stop recording
             elapsed = (time.time() - start_time) * 1000  # msec
-            play_time = int(cap.get(cv2.CAP_PROP_POS_MSEC))
-            sleep = max(1, int(play_time - elapsed))
+            cap.set(cv2.CAP_PROP_POS_MSEC, int(elapsed))
+            # play_time = int(cap.get(cv2.CAP_PROP_POS_MSEC))
 
-            if cv2.waitKey(sleep) & 0xFF == 27:
+            # sleep = max(1, int(play_time - elapsed))
+
+
+            if cv2.waitKey(1) & 0xFF == 27:
                 break
 
         # Break the loop
@@ -183,10 +199,7 @@ def video_player(displays, run, project):
     cv2.destroyAllWindows()
 
     # Audio closing
-    print("try to terminate audio process")
-    # playback.stop()
-    print("after trying of audio process termination")
-
+    player.close_player()
 
 
 if __name__ == '__main__':

@@ -4,6 +4,8 @@ import time
 import os
 import logging
 from multiprocessing import Process, Value
+import base64
+import zmq
 
 path = os.getcwd()
 isUnix = False
@@ -25,9 +27,6 @@ else:
 from pydub import AudioSegment
 from pydub.playback import _play_with_simpleaudio
 
-import base64
-import cv2
-import zmq
 
 logging.basicConfig(level=logging.INFO)
 
@@ -43,15 +42,23 @@ def video_player(displays, run, project):
         tape = AudioSegment.from_file(video_file, format='mp4')
         playback = _play_with_simpleaudio(tape)
 
-    start_time = time.time()
     before = {}
     after = {}
     M = {}
     widths = {}
     heights = {}
+    sockets = {}
+
+    context = zmq.Context()
 
     for display in displays:
+        if display['video'] != True:
+            sockets[display['port']] = context.socket(zmq.PUB)
+            sockets[display['port']].connect('tcp://localhost:' + str(display['port']))
+            print('Socket on port' + str(display['port']) + ' connected')
 
+
+    for display in displays:
         if display['video'] == True:
             x1 = display['points'][0]['x']
             x2 = display['points'][1]['x']
@@ -101,6 +108,12 @@ def video_player(displays, run, project):
     frame_height = int(cap.get(4))
 
     # print(frame_width, frame_height)
+    start_time = time.time()
+    elapsed = 0
+    play_time = 0
+    sleep = 0
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    interval = int(1000 / fps)
 
     while (run.value == 1.0):
 
@@ -132,9 +145,19 @@ def video_player(displays, run, project):
 
                     frame2 = cv2.warpPerspective(frame, M_front, (width, height))
 
+                    fontScale = 1
+                    color = (255, 255, 255)
+                    thickness = 2
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    frame2 = cv2.putText(frame2, 'E: ' + str(round(elapsed)) + ' P: ' + str(round(play_time)) + ' S:' + str(round(sleep)), (10, 30), font,
+                                        fontScale, color, thickness, cv2.LINE_AA)
+
+                    encoded, buffer = cv2.imencode('.jpg', frame2)
+                    jpg_as_text = base64.b64encode(buffer)
+                    sockets[display['port']].send(jpg_as_text)
                     # Display the resulting frame
                     # print("port, " + str(width) + " " + str(height))
-                    cv2.imshow(str(port), frame2)
+                    # cv2.imshow(str(port), frame2)
                     # print("after imshow")
 
             cv2.imshow('frame', frame)
@@ -143,6 +166,7 @@ def video_player(displays, run, project):
             elapsed = (time.time() - start_time) * 1000  # msec
             play_time = int(cap.get(cv2.CAP_PROP_POS_MSEC))
             sleep = max(1, int(play_time - elapsed))
+
             if cv2.waitKey(sleep) & 0xFF == 27:
                 break
 

@@ -27,22 +27,19 @@ while True:
     try:
         frame = receiver.recv_string()
         first = 0
+        img = base64.b64decode(frame)
+        npimg = np.frombuffer(img, dtype=np.uint8)
+        source = cv2.imdecode(npimg, 1)
+        # cv2.namedWindow("Stream", cv2.WND_PROP_FULLSCREEN)
+        # cv2.setWindowProperty("Stream", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_AUTOSIZE)
+        cv2.imshow("Stream", source)
+
     except:
         if first == 1:
-            if cv2.waitKey(100) & 0xff == 27:
-                break
-            else:
-                cv2.imshow("Start", waitImage)
-                continue
+            cv2.imshow("Start", waitImage)
         else:
-            break
-
-    img = base64.b64decode(frame)
-    npimg = np.frombuffer(img, dtype=np.uint8)
-    source = cv2.imdecode(npimg, 1)
-    cv2.namedWindow("Stream", cv2.WND_PROP_FULLSCREEN)
-    cv2.setWindowProperty("Stream", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-    cv2.imshow("Stream", source)
+            cv2.destroyAllWindows()
+            first = 1
 
     if cv2.waitKey(1) & 0xff == 27:
         cv2.destroyAllWindows()

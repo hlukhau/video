@@ -1,5 +1,5 @@
-import base64
 import cv2
+import base64
 import zmq
 import time
 import signal

@@ -46,6 +46,7 @@ class Display {
     this.height = "480";
     this.width = "720";
     this.video = video;
+    this.ip = "localhost";
     this.pointSelected = null;
   }
 
@@ -120,9 +121,11 @@ class Display {
             btnDelete.disabled = false;
 
             var form = document.getElementById('fields');
+            var ip = document.getElementById("ip");
             var port = document.getElementById("port");
             var height = document.getElementById("height");
             var width = document.getElementById("width");
+            ip.value = this.ip;
             port.value = this.port;
             height.value = this.height;
             width.value = this.width;
@@ -242,6 +245,7 @@ class CanvasView {
             v.width = videoImage.width;
             v.height = videoImage.height;
             v.port = "5000";
+            v.ip = "localhost";
             displays.push(v);
             ps = [];
           }
@@ -628,9 +632,10 @@ window.onload = function () {
        ps.push({"x": {{point.x}}, "y": {{point.y}}});
     {%endfor%}
     displays.push(new Display(ps, '{{p.video}}'!='False'));
-    displays[displays.length - 1].port = {{p.port}};
+    displays[displays.length - 1].ip = '{{p.ip}}';
+    displays[displays.length - 1].port = '{{p.port}}';
     displays[displays.length - 1].height = '{{p.height}}';
-    displays[displays.length - 1].width = {{p.width}};
+    displays[displays.length - 1].width = '{{p.width}}';
     console.log(displays.length);
 
 {%endfor%}
@@ -641,6 +646,7 @@ window.onload = function () {
 
 
 function fillForm() {
+  var ip = document.getElementById("ip");
   var port = document.getElementById("port");
   var height = document.getElementById("height");
   var width = document.getElementById("width");
@@ -648,6 +654,7 @@ function fillForm() {
   for (var d of displays) {
 
     if (d.selected) {
+        d.ip = ip.value;
         d.port = port.value;
         d.height = height.value;
         d.width = width.value;
@@ -688,6 +695,7 @@ function fillForm() {
 
 
             <form id="fields" hidden onchange="fillForm()">
+               ip: <br /><input id="ip" type="text" name="port" value="localhost" oninput="fillForm()"><br />
                port: <br /><input id="port" type="text" name="port" value="5556" oninput="fillForm()"><br />
                width: <br /><input type="text" name="width" id="width" value="720" oninput="fillForm()"><br />
                height: <br /><input type="text" name="width" id="height" value="480" oninput="fillForm()"><br />

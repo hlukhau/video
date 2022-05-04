@@ -54,7 +54,7 @@ def video_player(displays, run, project):
     for display in displays:
         if display['video'] != True:
             sockets[display['port']] = context.socket(zmq.PUB)
-            sockets[display['port']].connect('tcp://localhost:' + str(display['port']))
+            sockets[display['port']].connect('tcp://' + str(display['ip']) + ':' + str(display['port']))
             print('Socket on port' + str(display['port']) + ' connected')
 
 

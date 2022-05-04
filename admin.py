@@ -15,42 +15,37 @@ app.secret_key = "super secret key"
 run = Value('d', 1.0)
 
 
-
 @app.route('/')
 def index():
     scene = ""
     video = ""
 
-    if session.get('project') == None:
+    if session.get('project') is None:
         session['project'] = 'demo'
 
     project = session.get('project')
 
-    if (os.path.exists('static/projects/' + project + '/scene/scene.jpg')):
+    if os.path.exists('static/projects/' + project + '/scene/scene.jpg'):
         scene = '/static/projects/' + project + '/scene/scene.jpg'
 
-        if (os.path.exists('static/projects/' + project + '/video/small.jpg')):
+        if os.path.exists('static/projects/' + project + '/video/small.jpg'):
             video = '/static/projects/' + project + '/video/small.jpg'
 
-
     with open('files/projects.json') as json_file:
-        projects = json.load(json_file)
+        video_projects = json.load(json_file)
 
-    return render_template('main.html', project=project, scene=scene, video=video, projects=projects)
-#    return "Index Page - goto <a href='/hello?coords=[[10,20],[30,13]]&param=[1200,600]'>hello</a><br>or go to drag and drop page <a href='static/drag-drop.html'>PAGE</a><br>go to <a href='static/main.html'>Bootstrap</a> page"
-
+    return render_template('main.html', project=project, scene=scene, video=video, projects=video_projects)
 
 
 @app.route('/projects', methods=['GET'])
 def projects():
     with open('files/projects.json') as json_file:
         data = json.load(json_file)
+        return data
 
 
 @app.route('/content', methods=['POST', 'GET'])
 def content():
-    project = session['project']
-
     if request.method == "POST":
         data = request.get_json()
 
@@ -60,29 +55,22 @@ def content():
             if tmp != 'Undefined':
                 session['project'] = data['project']
                 project = data['project']
-                if (os.path.exists('static/projects/' + project) != True):
+                if not os.path.exists('static/projects/' + project):
                     os.mkdir('static/projects/' + project)
                     os.mkdir('static/projects/' + project + '/scene')
                     os.mkdir('static/projects/' + project + '/video')
 
     scene = ""
     video = ""
-    project = session['project']
+    project = session.get('project')
 
-    if (os.path.exists('static/projects/' + project + '/scene/scene.jpg')):
+    if os.path.exists('static/projects/' + project + '/scene/scene.jpg'):
         scene = '/static/projects/' + project + '/scene/scene.jpg'
 
-    if (os.path.exists('static/projects/' + project + '/video/small.jpg')):
+    if os.path.exists('static/projects/' + project + '/video/small.jpg'):
         video = '/static/projects/' + project + '/video/small.jpg'
 
     return render_template('content.html', project=session['project'], scene=scene, video=video)
-
-
-@app.route('/hello')
-def hello():
-    coords = request.args.get('coords')
-    param = request.args.get('param')
-    return "Hello World - goto <a href='/upload'>upload</a> Coords: " + coords + " Param: " + param
 
 
 @app.route('/upload')
@@ -95,34 +83,34 @@ def upload_html():
 def add_project():
     name = request.args.get('name')
     with open('files/projects.json') as json_file:
-        projects = json.load(json_file)
-        element = {"name":name}
-        exists = element in projects
+        video_projects = json.load(json_file)
+        element = {"name": name}
+        exists = element in video_projects
 
         if not exists:
-            projects.append(element)
-            print(projects)
+            video_projects.append(element)
+            print(video_projects)
 
             with open('files/projects.json', 'w') as outfile:
-                json.dump(projects, outfile)
+                json.dump(video_projects, outfile)
                 session['project'] = name
 
-                if (os.path.exists('static/projects/' + name) != True):
+                if not os.path.exists('static/projects/' + name):
                     os.mkdir('static/projects/' + name)
                     os.mkdir('static/projects/' + name + '/scene')
                     os.mkdir('static/projects/' + name + '/video')
 
     return redirect('/')
 
+
 @app.route('/points', methods=['POST'])
 def points():
     project = session['project']
-    points = request.get_json()
+    displays = request.get_json()
 
     with open('static/projects/' + project + '/displays.json', 'w') as outfile:
-        json.dump(points, outfile)
+        json.dump(displays, outfile)
     return "Ok"
-
 
 
 @app.route('/send', methods=['GET', 'POST'])
@@ -154,6 +142,7 @@ def send_file():
 
         time.sleep(1)
         return redirect('/')
+
 
 @app.route('/uploader', methods=['GET', 'POST'])
 def upload_file():
@@ -187,14 +176,14 @@ def delete():
     project = session.get('project')
     element = {"name": project}
 
-    if (os.path.exists('static/projects/' + project + '/scene/scene.jpg')):
+    if os.path.exists('static/projects/' + project + '/scene/scene.jpg'):
         os.remove("static/projects/" + project + "/scene/scene.jpg")
 
-    if (os.path.exists('static/projects/' + project + '/video/small.jpg')):
+    if os.path.exists('static/projects/' + project + '/video/small.jpg'):
         os.remove("static/projects/" + project + "/video/small.jpg")
-    if (os.path.exists('static/projects/' + project + '/video/original.jpg')):
+    if os.path.exists('static/projects/' + project + '/video/original.jpg'):
         os.remove("static/projects/" + project + "/video/original.jpg")
-    if (os.path.exists('static/projects/' + project + '/video/video.mp4')):
+    if os.path.exists('static/projects/' + project + '/video/video.mp4'):
         os.remove("static/projects/" + project + "/video/video.mp4")
 
     os.rmdir("static/projects/" + project + "/scene")
@@ -202,11 +191,11 @@ def delete():
     os.rmdir("static/projects/" + project)
 
     with open('files/projects.json') as json_file:
-        projects = json.load(json_file)
+        video_projects = json.load(json_file)
 
-        projects.remove(element)
+        video_projects.remove(element)
         with open('files/projects.json', 'w') as outfile:
-            json.dump(projects, outfile)
+            json.dump(video_projects, outfile)
             session['project'] = 'demo'
 
     session['project'] = 'demo'
@@ -214,21 +203,20 @@ def delete():
     return redirect('/')
 
 
-
 @app.route('/edit')
 def edit():
     project = session.get('project')
     path = request.args.get('path')
     print("edit: " + path)
-    points = []
+    displays = []
 
-    if (os.path.exists('static/projects/' + project + '/displays.json')):
+    if os.path.exists('static/projects/' + project + '/displays.json'):
         print('static/projects/' + project + '/displays.json')
         with open('static/projects/' + project + '/displays.json') as points_file:
-            points = json.load(points_file)
+            displays = json.load(points_file)
 
-    print(points)
-    return render_template('canvas-viewer.html', path=path, project=project, points=points)
+    print(displays)
+    return render_template('canvas-viewer.html', path=path, project=project, points=displays)
 
 
 @app.route('/remove')
@@ -237,23 +225,17 @@ def remove():
     path = request.args.get('path')
 
     if path.find("scene") != -1:
-        if (os.path.exists('static/projects/' + project + '/scene/scene.jpg')):
+        if os.path.exists('static/projects/' + project + '/scene/scene.jpg'):
             os.remove("static/projects/" + project + "/scene/scene.jpg")
 
     if path.find("video") != -1:
-        if (os.path.exists('static/projects/' + project + '/video/small.jpg')):
+        if os.path.exists('static/projects/' + project + '/video/small.jpg'):
             os.remove("static/projects/" + project + "/video/small.jpg")
-        if (os.path.exists('static/projects/' + project + '/video/original.jpg')):
+        if os.path.exists('static/projects/' + project + '/video/original.jpg'):
             os.remove("static/projects/" + project + "/video/original.jpg")
-        if (os.path.exists('static/projects/' + project + '/video/video.mp4')):
+        if os.path.exists('static/projects/' + project + '/video/video.mp4'):
             os.remove("static/projects/" + project + "/video/video.mp4")
 
-    return redirect('/')
-
-
-@app.route('/exit')
-def exit():
-    session.pop('project', None)
     return redirect('/')
 
 
@@ -262,14 +244,19 @@ def start_video():
     project = session.get('project')
     print('start video ' + project)
 
-    if (os.path.exists('static/projects/' + project + '/displays.json')):
+    if os.path.exists('static/projects/' + project + '/displays.json'):
         print('static/projects/' + project + '/displays.json')
         with open('static/projects/' + project + '/displays.json') as points_file:
             displays = json.load(points_file)
 
+        x1 = 0
+        y1 = 0
+        w = 0
+        h = 0
+
         for display in displays:
 
-            if display['video'] == True:
+            if display['video']:
                 x1 = display['points'][0]['x']
                 x2 = display['points'][1]['x']
                 y1 = display['points'][0]['y']
@@ -286,28 +273,19 @@ def start_video():
             for point in display['points']:
                 ox = float(point['x'])
                 oy = float(point['y'])
-                x = (ox - x1) * width / w;
-                y = (oy - y1) * height / h;
+                x = (ox - x1) * width / w
+                y = (oy - y1) * height / h
                 ps.append([x, y])
 
-            if display['video'] != True:
-                frontCoverPtsBefore = np.array(ps, dtype="float32")
-                frontCoverPtsAfter = np.array([[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]],
-                                              dtype="float32")
-
-                # proc1 = Process(target=video_player, args=('video:' + str(display['port']), frontCoverPtsAfter, frontCoverPtsBefore, int(width), int(height)))
-                # proc1.start()
-
-        global proc1
-        proc1 = Process(target=tr.video_player, args=(displays, run, project, )) #'video:' + str(display['port']), frontCoverPtsAfter, frontCoverPtsBefore, int(width), int(height)))
+        proc1 = Process(target=tr.video_player, args=(displays, run, project,))
         run.value = 1.0
         proc1.start()
-
 
         # global player
         # player = MediaPlayer('3.a.mp4')
 
     return "Ok"
+
 
 @app.route('/stop-video')
 def stop_video():
@@ -318,9 +296,7 @@ def stop_video():
 
 if __name__ == '__main__':
     app.config['UPLOAD_FOLDER'] = 'files'
-#    app.run(host='0.0.0.0', port=5555)
+    #    app.run(host='0.0.0.0', port=5555)
     from waitress import serve
+
     serve(app, host="0.0.0.0", port=5555)
-
-
-

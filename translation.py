@@ -6,13 +6,14 @@ import logging
 from multiprocessing import Process, Value
 import base64
 import zmq
+import playsound2
 
 path = os.getcwd()
 isUnix = False
 
 if (path.find(':') > 0):
     print('Windows OS detected!')
-    from moviepy.editor import *
+    # from moviepy.editor import *
     from ffpyplayer.player import MediaPlayer
 else:
     isUnix = True
@@ -21,12 +22,12 @@ else:
 
 # from pydub.playback import play
 # import simpleaudio
-def mp4tomp3(mp4file,mp3file):
-    videoclip=VideoFileClip(mp4file)
-    audioclip=videoclip.audio
-    audioclip.write_audiofile(mp3file)
-    audioclip.close()
-    videoclip.close()
+# def mp4tomp3(mp4file,mp3file):
+#     videoclip=VideoFileClip(mp4file)
+#     audioclip=videoclip.audio
+#     audioclip.write_audiofile(mp3file)
+#     audioclip.close()
+#     videoclip.close()
 
 
 from pydub import AudioSegment
@@ -47,8 +48,9 @@ def video_player(displays, run, project):
     else:
         video_file = path + "\\static\\projects\\" + project + "\\video\\video.mp4"
         audio_file = path + "\\static\\projects\\" + project + "\\video\\video.mp3"
-        mp4tomp3(video_file, audio_file)
-        player = MediaPlayer(audio_file)
+        # mp4tomp3(video_file, audio_file)
+        # player = MediaPlayer(audio_file)
+        player = MediaPlayer(video_file)
 
     before = {}
     after = {}
@@ -131,7 +133,9 @@ def video_player(displays, run, project):
     while (run.value == 1.0):
 
         ret, frame = cap.read()
-        # print("cap.read = " + str(ret))
+
+        if not isUnix:
+            audio_frame, val = player.get_frame()
 
 
         if ret == True:
@@ -189,6 +193,11 @@ def video_player(displays, run, project):
         # Break the loop
         else:
             break
+
+        if not isUnix:
+            if val != 'eof' and audio_frame is not None:
+                # windows audio
+                img, t = audio_frame
 
     print('close video player')
 

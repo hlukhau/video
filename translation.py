@@ -6,7 +6,7 @@ import logging
 from multiprocessing import Process, Value
 import base64
 import zmq
-import playsound2
+from zmq import NOBLOCK
 
 path = os.getcwd()
 isUnix = False
@@ -18,7 +18,6 @@ if (path.find(':') > 0):
 else:
     isUnix = True
     print('UNIX detected!')
-
 
 # from pydub.playback import play
 # import simpleaudio
@@ -33,12 +32,10 @@ else:
 from pydub import AudioSegment
 from pydub.playback import _play_with_simpleaudio
 
-
 logging.basicConfig(level=logging.INFO)
 
 
 def video_player(displays, run, project):
-
     video_file = "static/projects/" + project + "/video/video.mp4"
     # print(video_file)
 
@@ -63,9 +60,15 @@ def video_player(displays, run, project):
 
     for display in displays:
         if display['video'] != True:
-            sockets[display['port']] = context.socket(zmq.PUB)
-            sockets[display['port']].connect('tcp://' + str(display['ip']) + ':' + str(display['port']))
-            print('Socket on port' + str(display['port']) + ' connected')
+            socket = context.socket(zmq.PUB)
+            socket.connect('tcp://' + str(display['ip']) + ':' + str(display['port']))
+            sockets[display['port']] = socket
+
+            # socket.send_string("hello")
+            # response = socket.recv_string()
+            #
+            # if response == "ok":
+            #     print(str(display['port']) + " connected")
 
 
     for display in displays:
@@ -97,14 +100,14 @@ def video_player(displays, run, project):
             # print(width, w)
 
             frontCoverPtsBefore = np.array(ps, dtype="float32")
-            frontCoverPtsAfter = np.array([[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]], dtype="float32")
+            frontCoverPtsAfter = np.array([[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]],
+                                          dtype="float32")
             M_front = cv2.getPerspectiveTransform(frontCoverPtsBefore, frontCoverPtsAfter)
             before[display['port']] = frontCoverPtsBefore
             after[display['port']] = frontCoverPtsAfter
             M[display['port']] = M_front
             widths[display['port']] = width
             heights[display['port']] = height
-
 
     RED = (0, 0, 255)
 
@@ -137,37 +140,39 @@ def video_player(displays, run, project):
         if not isUnix:
             audio_frame, val = player.get_frame()
 
-
         if ret == True:
 
             for display in displays:
                 if display['video'] != True:
-                    # print("client")
-                    port = display['port']
-                    # print("port" + str(port))
-                    frontCoverPtsBefore = before[port]
-                    frontCoverPtsAfter = after[port]
-                    M_front = cv2.getPerspectiveTransform(frontCoverPtsBefore, frontCoverPtsAfter)
-                    width = int(widths[port])
-                    height = int(heights[port])
-                    p0 = int(frontCoverPtsBefore[0][0]), int(frontCoverPtsBefore[0][1])
-                    p1 = int(frontCoverPtsBefore[1][0]), int(frontCoverPtsBefore[1][1])
-                    p2 = int(frontCoverPtsBefore[2][0]), int(frontCoverPtsBefore[2][1])
-                    p3 = int(frontCoverPtsBefore[3][0]), int(frontCoverPtsBefore[3][1])
 
-                    frame = cv2.line(frame, p0, p1, RED, 3)
-                    frame = cv2.line(frame, p1, p2, RED, 3)
-                    frame = cv2.line(frame, p2, p3, RED, 3)
-                    frame = cv2.line(frame, p3, p0, RED, 3)
+                    if  display['port'] in sockets:
+                        # print("client")
+                        port = display['port']
+                        # print("port " + str(port))
+                        frontCoverPtsBefore = before[port]
+                        frontCoverPtsAfter = after[port]
+                        M_front = cv2.getPerspectiveTransform(frontCoverPtsBefore, frontCoverPtsAfter)
+                        width = int(widths[port])
+                        height = int(heights[port])
+                        p0 = int(frontCoverPtsBefore[0][0]), int(frontCoverPtsBefore[0][1])
+                        p1 = int(frontCoverPtsBefore[1][0]), int(frontCoverPtsBefore[1][1])
+                        p2 = int(frontCoverPtsBefore[2][0]), int(frontCoverPtsBefore[2][1])
+                        p3 = int(frontCoverPtsBefore[3][0]), int(frontCoverPtsBefore[3][1])
 
-                    frame2 = cv2.warpPerspective(frame, M_front, (width, height))
+                        frame = cv2.line(frame, p0, p1, RED, 3)
+                        frame = cv2.line(frame, p1, p2, RED, 3)
+                        frame = cv2.line(frame, p2, p3, RED, 3)
+                        frame = cv2.line(frame, p3, p0, RED, 3)
 
-                    frame2 = cv2.putText(frame2, 'E: ' + str(round(elapsed)) + ' P: ' + str(round(play_time)) + ' S:' + str(round(sleep)), (10, 30), font,
-                                        fontScale, color, thickness, cv2.LINE_AA)
+                        frame2 = cv2.warpPerspective(frame, M_front, (width, height))
 
-                    encoded, buffer = cv2.imencode('.jpg', frame2)
-                    jpg_as_text = base64.b64encode(buffer)
-                    sockets[display['port']].send(jpg_as_text)
+                        frame2 = cv2.putText(frame2, 'FPS: ' + str(round(cap.get(cv2.CAP_PROP_FPS))), (10, 30), font,
+                                             fontScale, color, thickness, cv2.LINE_AA)
+
+                        encoded, buffer = cv2.imencode('.jpg', frame2)
+                        jpg_as_text = base64.b64encode(buffer)
+                        sockets[display['port']].send(jpg_as_text)
+
                     # Display the resulting frame
                     # print("port, " + str(width) + " " + str(height))
                     # cv2.imshow(str(port), frame2)
@@ -182,12 +187,11 @@ def video_player(displays, run, project):
             # Press Q on keyboard to stop recording
             elapsed = (time.time() - start_time) * 1000  # msec
             cap.set(cv2.CAP_PROP_POS_MSEC, int(elapsed))
-            # play_time = int(cap.get(cv2.CAP_PROP_POS_MSEC))
 
+            # play_time = int(cap.get(cv2.CAP_PROP_POS_MSEC))
             # sleep = max(1, int(play_time - elapsed))
 
-
-            if cv2.waitKey(1) & 0xFF == 27:
+            if cv2.waitKey(30) & 0xFF == 27:
                 break
 
         # Break the loop
@@ -208,11 +212,17 @@ def video_player(displays, run, project):
     cv2.destroyAllWindows()
 
     # Audio closing
-    player.close_player()
+    if isUnix:
+        playback.stop()
+    else:
+        player.close_player()
+
+
+
+
 
 
 if __name__ == '__main__':
     proc1 = Process(target=video_player, args=('video',))
     proc1.start()
     proc1.join()
-

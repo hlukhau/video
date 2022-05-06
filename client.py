@@ -26,6 +26,13 @@ receiver.setsockopt(zmq.RCVTIMEO, 1000)
 while True:
     try:
         frame = receiver.recv_string()
+        # print('receive ' + frame)
+        #
+        # if frame == "hello":
+        #     print('receive ' + frame)
+        #     receiver.send_string("ok")
+        #     continue
+
         first = 0
         img = base64.b64decode(frame)
         npimg = np.frombuffer(img, dtype=np.uint8)

@@ -1,10 +1,27 @@
-FROM python:3
+#Deriving the latest base image
+# docker build -t aprojection:v1 ./
+# docker run -p 5551:5555 -v /home/hlukhau/PycharmProjects/video/static:/app/static -v /home/hlukhau/PycharmProjects/video/files:/app/files aprojection:v1
+# docker tag aprojection:v1  hlukhau/aprojection:v1
+# docker login -u hlukhau
+# docker push hlukhau/aprojection:v1
+FROM python:latest
+
+#Labels as key value pair
 MAINTAINER Dzmitry Hlukhau 'dzmitry.hlukhau@outlook.com'
 
-COPY . /app
+# Any working directory can be chosen as per choice like '/' or '/home' etc
+# i have chosen /usr/app/src
 WORKDIR /app
-# pip freeze > ./requirements.txt
+
+#to COPY the remote file at working directory in container
+COPY . /app
+# Now the structure looks like this '/usr/app/src/test.py'
+
+RUN apt-get update
+RUN apt-get install ffmpeg libsm6 libxext6  -y
+
 RUN pip install --no-cache-dir -r requirements.txt
 
-ENTRYPOINT ['python']
-CMD [ "python", "./admin.py" ]
+#CMD instruction should be used to run the software
+#contained by your image, along with any arguments.
+CMD [ "python", "./admin.py"]

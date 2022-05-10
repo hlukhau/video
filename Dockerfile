@@ -1,6 +1,7 @@
 #Deriving the latest base image
 # docker build -t aprojection:v1 ./
-# docker run -p 5551:5555 -v /home/hlukhau/PycharmProjects/video/static:/app/static -v /home/hlukhau/PycharmProjects/video/files:/app/files aprojection:v1
+# docker run -p 5555:5555 -v /home/hlukhau/PycharmProjects/video/static:/app/static -v /home/hlukhau/PycharmProjects/video/files:/app/files aprojection:v1
+# docker run -p 5555:5555 -v /home/hlukhau/PycharmProjects/video/static:/app/static -v /home/hlukhau/PycharmProjects/video/files:/app/files -v /run/user/1000/pulse/native:/run/user/1000/pulse/native ---device /dev/snd aprojection:v1
 # docker tag aprojection:v1  hlukhau/aprojection:v1
 # docker login -u hlukhau
 # docker push hlukhau/aprojection:v1
@@ -19,6 +20,10 @@ COPY . /app
 
 RUN apt-get update
 RUN apt-get install ffmpeg libsm6 libxext6  -y
+
+RUN apt-get install libasound2-dev
+RUN pip install simpleaudio
+
 
 RUN pip install --no-cache-dir -r requirements.txt
 

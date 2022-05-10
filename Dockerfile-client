@@ -1,0 +1,43 @@
+#Deriving the latest base image
+# docker build -t aclient:v1 ./ -f Dockerfile-client
+# docker run -p 5557:5556 aclient:v1
+# docker tag aclient:v1  hlukhau/aclient:v1
+# docker login -u hlukhau
+# docker push hlukhau/aclient:v1
+
+# before that you need to do several linux command on the linux computer with docker
+# xauth list $DISPLAY
+# export DISPLAY=unix:0
+# xhost +local:all
+# sudo xhost +
+
+# docker run -p 5556:5556 -e DISPLAY=unix:0 -v /tmp/.X11-unix/:/tmp/.X11-unix/ aclient:v1
+
+FROM python:latest
+
+#Labels as key value pair
+MAINTAINER Dzmitry Hlukhau 'dzmitry.hlukhau@outlook.com'
+
+# Any working directory can be chosen as per choice like '/' or '/home' etc
+# i have chosen /usr/app/src
+WORKDIR /app
+
+#to COPY the remote file at working directory in container
+COPY . /app
+# Now the structure looks like this '/usr/app/src/test.py'
+
+RUN apt-get update
+RUN apt-get install ffmpeg libsm6 libxext6  -y
+
+RUN apt-get install python3-pyqt5 -y
+RUN pip3 install pyqt5
+
+RUN apt-get install -y '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
+
+ENV QT_DEBUG_PLUGINS=1
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+#CMD instruction should be used to run the software
+#contained by your image, along with any arguments.
+CMD [ "python", "./client.py", "5556"]

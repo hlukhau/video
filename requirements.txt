@@ -3,3 +3,4 @@ opencv-python==4.5.5.64
 zmq==0.0.0
 pydub==0.25.1
 waitress==2.1.1
+ffpyplayer==4.3.5

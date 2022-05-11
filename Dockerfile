@@ -5,7 +5,15 @@
 # docker tag aprojection:v1  hlukhau/aprojection:v1
 # docker login -u hlukhau
 # docker push hlukhau/aprojection:v1
-FROM python:latest
+
+#FROM python:latest
+FROM python:3
+
+RUN apt-get update -yy && \
+    apt-get install -yy \
+	alsa-utils \
+	portaudio19-dev \
+	python-all-dev
 
 #Labels as key value pair
 MAINTAINER Dzmitry Hlukhau 'dzmitry.hlukhau@outlook.com'
@@ -18,11 +26,12 @@ WORKDIR /app
 COPY . /app
 # Now the structure looks like this '/usr/app/src/test.py'
 
+# Install gcc and libav-tools
+
 RUN apt-get update
 RUN apt-get install ffmpeg libsm6 libxext6  -y
-
-RUN apt-get install libasound2-dev
-RUN pip install simpleaudio
+# RUN apt-get install libasound2-dev
+# RUN pip install simpleaudio
 
 
 RUN pip install --no-cache-dir -r requirements.txt

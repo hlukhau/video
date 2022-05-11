@@ -14,7 +14,6 @@ isUnix = False
 if (path.find(':') > 0):
     print('Windows OS detected!')
     # from moviepy.editor import *
-    from ffpyplayer.player import MediaPlayer
 else:
     isUnix = True
     print('UNIX detected!')
@@ -31,6 +30,7 @@ else:
 
 from pydub import AudioSegment
 from pydub.playback import _play_with_simpleaudio
+from ffpyplayer.player import MediaPlayer
 
 logging.basicConfig(level=logging.INFO)
 
@@ -39,15 +39,18 @@ def video_player(displays, run, project):
     video_file = "static/projects/" + project + "/video/video.mp4"
     # print(video_file)
 
+    # if isUnix:
+    #     tape = AudioSegment.from_file(video_file, format='mp4')
+    #     playback = _play_with_simpleaudio(tape)
+    # else:
     if isUnix:
-        tape = AudioSegment.from_file(video_file, format='mp4')
-        playback = _play_with_simpleaudio(tape)
+        video_file = path + "/static/projects/" + project + "/video/video.mp4"
     else:
         video_file = path + "\\static\\projects\\" + project + "\\video\\video.mp4"
-        audio_file = path + "\\static\\projects\\" + project + "\\video\\video.mp3"
+        # audio_file = path + "\\static\\projects\\" + project + "\\video\\video.mp3"
         # mp4tomp3(video_file, audio_file)
         # player = MediaPlayer(audio_file)
-        player = MediaPlayer(video_file)
+    player = MediaPlayer(video_file)
 
     before = {}
     after = {}
@@ -125,8 +128,8 @@ def video_player(displays, run, project):
     elapsed = 0
     play_time = 0
     sleep = 0
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    interval = int(1000 / fps)
+    # fps = cap.get(cv2.CAP_PROP_FPS)
+    # interval = int(1000 / fps)
 
     fontScale = 1
     color = (255, 255, 255)
@@ -212,10 +215,10 @@ def video_player(displays, run, project):
     cv2.destroyAllWindows()
 
     # Audio closing
-    if isUnix:
-        playback.stop()
-    else:
-        player.close_player()
+    # if isUnix:
+    #     playback.stop()
+    # else:
+    player.close_player()
 
 
 

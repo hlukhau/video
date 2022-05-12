@@ -34,6 +34,8 @@ from ffpyplayer.player import MediaPlayer
 
 logging.basicConfig(level=logging.INFO)
 
+count = 0
+
 
 def video_player(displays, run, project):
     video_file = "static/projects/" + project + "/video/video.mp4"
@@ -52,6 +54,7 @@ def video_player(displays, run, project):
         # player = MediaPlayer(audio_file)
     player = MediaPlayer(video_file)
 
+    count = 0
     before = {}
     after = {}
     M = {}
@@ -176,6 +179,15 @@ def video_player(displays, run, project):
                         jpg_as_text = base64.b64encode(buffer)
                         sockets[display['port']].send(jpg_as_text)
 
+                        count = count + 1
+
+                        if count % 30 == 1:
+                            for display in displays:
+                                if display['video'] != True:
+                                    socket = context.socket(zmq.PUB)
+                                    socket.connect('tcp://' + str(display['ip']) + ':' + str(display['port']))
+                                    sockets[display['port']] = socket
+
                     # Display the resulting frame
                     # print("port, " + str(width) + " " + str(height))
                     # cv2.imshow(str(port), frame2)
@@ -221,8 +233,11 @@ def video_player(displays, run, project):
     player.close_player()
 
 
+    for display in displays:
+        if display['video'] != True:
 
-
+            if display['port'] in sockets:
+                sockets[display['port']].close()
 
 
 if __name__ == '__main__':

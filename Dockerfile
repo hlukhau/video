@@ -8,6 +8,8 @@
 
 #FROM python:latest
 FROM python:3
+MAINTAINER Dzmitry Hlukhau 'dzmitry.hlukhau@outlook.com'
+
 
 RUN apt-get update -yy && \
     apt-get install -yy \
@@ -15,27 +17,16 @@ RUN apt-get update -yy && \
 	portaudio19-dev \
 	python-all-dev
 
-#Labels as key value pair
-MAINTAINER Dzmitry Hlukhau 'dzmitry.hlukhau@outlook.com'
+#RUN apt-get install -y libasound-dev libportaudio2 libportaudiocpp0 portaudio19-dev libsndfile1
+#RUN apt-get install alsa-base pulseaudio \
 
-# Any working directory can be chosen as per choice like '/' or '/home' etc
-# i have chosen /usr/app/src
 WORKDIR /app
 
-#to COPY the remote file at working directory in container
 COPY . /app
-# Now the structure looks like this '/usr/app/src/test.py'
-
-# Install gcc and libav-tools
 
 RUN apt-get update
 RUN apt-get install ffmpeg libsm6 libxext6  -y
-# RUN apt-get install libasound2-dev
-# RUN pip install simpleaudio
-
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-#CMD instruction should be used to run the software
-#contained by your image, along with any arguments.
 CMD [ "python", "./admin.py"]

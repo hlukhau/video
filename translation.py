@@ -206,7 +206,7 @@ def video_player(displays, run, project):
             # play_time = int(cap.get(cv2.CAP_PROP_POS_MSEC))
             # sleep = max(1, int(play_time - elapsed))
 
-            if cv2.waitKey(30) & 0xFF == 27:
+            if cv2.waitKey(1) & 0xFF == 27:
                 break
 
         # Break the loop

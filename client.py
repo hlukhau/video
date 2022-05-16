@@ -4,6 +4,7 @@ import base64
 import numpy as np
 import sys
 import logging
+import os
 
 print(sys.argv[1])
 
@@ -22,6 +23,10 @@ receiver.bind('tcp://*:' + sys.argv[1])
 receiver.setsockopt_string(zmq.SUBSCRIBE, np.compat.unicode(''))
 receiver.setsockopt(zmq.RCVTIMEO, 1000)
 
+try:
+    offset = int(sys.argv[2])
+except:
+    offset = 0
 
 while True:
     try:
@@ -40,7 +45,7 @@ while True:
         cv2.namedWindow("Stream", cv2.WND_PROP_FULLSCREEN)
         cv2.setWindowProperty("Stream", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_AUTOSIZE)
         cv2.imshow("Stream", source)
-
+        cv2.moveWindow("Stream", offset, 0)
     except:
         if first == 1:
             cv2.imshow("Start", waitImage)

@@ -18,8 +18,6 @@ else:
     isUnix = True
     print('UNIX detected!')
 
-screen = window.get_screen()
-
 # from pydub.playback import play
 # import simpleaudio
 # def mp4tomp3(mp4file,mp3file):

@@ -18,6 +18,8 @@ else:
     isUnix = True
     print('UNIX detected!')
 
+screen = window.get_screen()
+
 # from pydub.playback import play
 # import simpleaudio
 # def mp4tomp3(mp4file,mp3file):
@@ -26,6 +28,24 @@ else:
 #     audioclip.write_audiofile(mp3file)
 #     audioclip.close()
 #     videoclip.close()
+
+
+# import os
+# import time
+# from multiprocessing import Process
+# import cv2
+#
+# def f(display):
+#     os.environ['DISPLAY'] = display
+#     print(os.environ['DISPLAY'])
+#     a = cv2.imread('avatar.png')
+#     cv2.imshow('window on %s'%display, a)
+#     cv2.waitKey(1000)
+#     time.sleep(10)
+#
+# Process(target=f, args=(':0.0',)).start()
+# Process(target=f, args=(':0.1',)).start()
+
 
 
 from pydub import AudioSegment

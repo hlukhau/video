@@ -1,12 +1,6 @@
-from subprocess import Popen
+import subprocess
 
-commands = [
-    "C:\\Users\\DimaPC\\PycharmProjects\\video\\venv\\Scripts\\python.exe server.py",
-    "C:\\Users\\DimaPC\\PycharmProjects\\video\\venv\\Scripts\\python.exe client.py 5556",
-    "C:\\Users\\DimaPC\\PycharmProjects\\video\\venv\\Scripts\\python.exe client.py 5557"
-]
+subprocess.Popen(["python", "/home/hlukhau/PycharmProjects/video/client.py", "5556"])
+subprocess.Popen(["python", "/home/hlukhau/PycharmProjects/video/client.py", "5557"])
 
 
-procs = [ Popen(i) for i in commands ]
-for p in procs:
-   p.wait()

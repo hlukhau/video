@@ -3,73 +3,31 @@ import numpy as np
 import time
 import os
 import logging
-from multiprocessing import Process, Value
+from multiprocessing import Process
 import base64
 import zmq
-from zmq import NOBLOCK
 
 path = os.getcwd()
 isUnix = False
 
 if (path.find(':') > 0):
-    print('Windows OS detected!')
-    # from moviepy.editor import *
+    print('Windows detected!')
 else:
     isUnix = True
     print('UNIX detected!')
 
-# from pydub.playback import play
-# import simpleaudio
-# def mp4tomp3(mp4file,mp3file):
-#     videoclip=VideoFileClip(mp4file)
-#     audioclip=videoclip.audio
-#     audioclip.write_audiofile(mp3file)
-#     audioclip.close()
-#     videoclip.close()
-
-
-# import os
-# import time
-# from multiprocessing import Process
-# import cv2
-#
-# def f(display):
-#     os.environ['DISPLAY'] = display
-#     print(os.environ['DISPLAY'])
-#     a = cv2.imread('avatar.png')
-#     cv2.imshow('window on %s'%display, a)
-#     cv2.waitKey(1000)
-#     time.sleep(10)
-#
-# Process(target=f, args=(':0.0',)).start()
-# Process(target=f, args=(':0.1',)).start()
-
-
-
-from pydub import AudioSegment
-from pydub.playback import _play_with_simpleaudio
 from ffpyplayer.player import MediaPlayer
 
 logging.basicConfig(level=logging.INFO)
 
 count = 0
 
-
 def video_player(displays, run, project):
-    video_file = "static/projects/" + project + "/video/video.mp4"
-    # print(video_file)
-
-    # if isUnix:
-    #     tape = AudioSegment.from_file(video_file, format='mp4')
-    #     playback = _play_with_simpleaudio(tape)
-    # else:
     if isUnix:
         video_file = path + "/static/projects/" + project + "/video/video.mp4"
     else:
         video_file = path + "\\static\\projects\\" + project + "\\video\\video.mp4"
-        # audio_file = path + "\\static\\projects\\" + project + "\\video\\video.mp3"
-        # mp4tomp3(video_file, audio_file)
-        # player = MediaPlayer(audio_file)
+
     player = MediaPlayer(video_file)
 
     count = 0
@@ -89,8 +47,6 @@ def video_player(displays, run, project):
             socket.connect('tcp://' + str(display['ip']) + ':' + str(display['port']))
             sockets[display['port']] = socket
             socket.setsockopt(zmq.CONFLATE, 1)
-
-
 
     for display in displays:
         if display['video'] == True:
@@ -203,24 +159,12 @@ def video_player(displays, run, project):
                                     socket.connect('tcp://' + str(display['ip']) + ':' + str(display['port']))
                                     sockets[display['port']] = socket
 
-                    # Display the resulting frame
-                    # print("port, " + str(width) + " " + str(height))
-                    # cv2.imshow(str(port), frame2)
-                    # print("after imshow")
-
-            # frame = cv2.putText(frame, 'E: ' + str(round(elapsed)) + ' P: ' + str(round(play_time)) + ' S:' + str(
-            #     round(sleep)), (10, 30), font,
-            #                      fontScale, color, thickness, cv2.LINE_AA)
-
-            # cv2.imshow('frame', frame)
-
-            # Press Q on keyboard to stop recording
             elapsed = (time.time() - start_time) * 1000  # msec
             cap.set(cv2.CAP_PROP_POS_MSEC, int(elapsed))
-
             # play_time = int(cap.get(cv2.CAP_PROP_POS_MSEC))
             # sleep = max(1, int(play_time - elapsed))
 
+            # Press ESC on keyboard to stop recording
             if cv2.waitKey(1) & 0xFF == 27:
                 break
 
@@ -242,11 +186,7 @@ def video_player(displays, run, project):
     cv2.destroyAllWindows()
 
     # Audio closing
-    # if isUnix:
-    #     playback.stop()
-    # else:
     player.close_player()
-
 
     for display in displays:
         if display['video'] != True:

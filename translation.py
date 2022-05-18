@@ -84,15 +84,12 @@ def video_player(displays, run, project):
 
     for display in displays:
         if display['video'] != True:
+            # old variant with unlimited queue
             socket = context.socket(zmq.PUB)
             socket.connect('tcp://' + str(display['ip']) + ':' + str(display['port']))
             sockets[display['port']] = socket
+            socket.setsockopt(zmq.CONFLATE, 1)
 
-            # socket.send_string("hello")
-            # response = socket.recv_string()
-            #
-            # if response == "ok":
-            #     print(str(display['port']) + " connected")
 
 
     for display in displays:

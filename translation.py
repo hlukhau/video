@@ -20,9 +20,9 @@ from ffpyplayer.player import MediaPlayer
 
 logging.basicConfig(level=logging.INFO)
 
-count = 0
 
 def video_player(displays, run, project):
+
     if isUnix:
         video_file = path + "/static/projects/" + project + "/video/video.mp4"
     else:
@@ -74,8 +74,6 @@ def video_player(displays, run, project):
                 y = (oy - y1) * video_height / h;
                 ps.append([x, y])
 
-            # print(width, w)
-
             frontCoverPtsBefore = np.array(ps, dtype="float32")
             frontCoverPtsAfter = np.array([[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]],
                                           dtype="float32")
@@ -109,6 +107,7 @@ def video_player(displays, run, project):
     color = (255, 255, 255)
     thickness = 2
     font = cv2.FONT_HERSHEY_SIMPLEX
+    print('FPS: ' + str(round(cap.get(cv2.CAP_PROP_FPS))))
 
     while (run.value == 1.0):
 
@@ -143,21 +142,19 @@ def video_player(displays, run, project):
 
                         frame2 = cv2.warpPerspective(frame, M_front, (width, height))
 
-                        frame2 = cv2.putText(frame2, 'FPS: ' + str(round(cap.get(cv2.CAP_PROP_FPS))), (10, 30), font,
-                                             fontScale, color, thickness, cv2.LINE_AA)
-
                         encoded, buffer = cv2.imencode('.jpg', frame2)
                         jpg_as_text = base64.b64encode(buffer)
                         sockets[display['port']].send(jpg_as_text)
 
                         count = count + 1
 
-                        if count % 30 == 1:
+                        if count % 120 == 1:
                             for display in displays:
                                 if display['video'] != True:
                                     socket = context.socket(zmq.PUB)
                                     socket.connect('tcp://' + str(display['ip']) + ':' + str(display['port']))
                                     sockets[display['port']] = socket
+
 
             elapsed = (time.time() - start_time) * 1000  # msec
             cap.set(cv2.CAP_PROP_POS_MSEC, int(elapsed))

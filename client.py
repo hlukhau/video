@@ -4,7 +4,6 @@ import base64
 import numpy as np
 import sys
 import logging
-import os
 
 print(sys.argv[1])
 
@@ -36,12 +35,7 @@ except:
 while True:
     try:
         frame = receiver.recv_string()
-        # print('receive ' + frame)
-        #
-        # if frame == "hello":
-        #     print('receive ' + frame)
-        #     receiver.send_string("ok")
-        #     continue
+
         if first == 1:
             position = cv2.getWindowImageRect(name_waiting)
             cv2.destroyWindow(name_waiting)

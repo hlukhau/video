@@ -6,8 +6,6 @@ import cv2
 import numpy as np
 from multiprocessing import Process, Value
 
-# from ffpyplayer.player import MediaPlayer
-
 import translation as tr
 
 app = Flask(__name__)

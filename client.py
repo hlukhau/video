@@ -51,13 +51,13 @@ def listen(port, fullscreen, offset):
             npimg = np.frombuffer(img, dtype=np.uint8)
             source = cv2.imdecode(npimg, 1)
 
-            if fullscreen == 'fullscreen':
+            if fullscreen == 1:
                 cv2.namedWindow(name_stream, cv2.WND_PROP_FULLSCREEN)
                 cv2.setWindowProperty(name_stream, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_AUTOSIZE)
 
             cv2.imshow(name_stream, source)
 
-            if fullscreen == 'fullscreen':
+            if fullscreen == 1:
                 cv2.moveWindow(name_stream, offset, 0)
         except:
             if first == 0:
